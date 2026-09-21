@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Admin Dashboard - Pain Relief Survey</title>
+  <title>Admin Dashboard - VYVIA Sanitary Pad Survey</title>
   <link rel="icon" type="image/png" href="/logo.png" />
   <link rel="shortcut icon" href="/logo.png" />
   <link rel="stylesheet" href="/css/styles.css" />
   <script src="https://unpkg.com/feather-icons"></script>
-  <!-- Chart.js for QN1 Analytics -->
+  <!-- Chart.js for Visual Analytics -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body style="background: #f8fafc;">
@@ -19,7 +19,7 @@
       <div class="login-icon">
         <i data-feather="lock" style="width: 28px; height: 28px;"></i>
       </div>
-      <h2 style="font-size: 1.4rem; font-weight: 700; color: #0f172a; margin-bottom: 6px;">Admin Access</h2>
+      <h2 style="font-size: 1.4rem; font-weight: 700; color: #0f172a; margin-bottom: 6px;">VYVIA Admin Access</h2>
       <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 20px;">
         Survey data and insights dekhne ke liye admin password enter karein.
       </p>
@@ -64,13 +64,13 @@
           </span>
           <span style="font-size: 0.78rem; color: #64748b;" id="last-updated-text">Live Sync</span>
         </div>
-        <h1 style="margin-top: 4px;">Survey Responses & Insights</h1>
-        <p>Question-wise submissions, respondent details, live charts & CSV export</p>
+        <h1 style="margin-top: 4px;">VYVIA Survey Responses &amp; Insights</h1>
+        <p>Q1–Q8 choice breakdowns, respondent analytics, live charts &amp; CSV export</p>
       </div>
       <div class="admin-actions">
         <a href="/" target="_blank" class="btn-refresh" style="text-decoration: none;">
           <i data-feather="external-link" style="width: 14px; height: 14px;"></i>
-          <span>Survey</span>
+          <span>View Survey</span>
         </a>
         <button id="btn-refresh-data" class="btn-refresh">
           <i data-feather="refresh-cw" style="width: 14px; height: 14px;"></i>
@@ -90,7 +90,7 @@
     <!-- KPI Statistics Grid -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon pink">
+        <div class="stat-icon blue">
           <i data-feather="users"></i>
         </div>
         <div class="stat-info">
@@ -101,31 +101,31 @@
 
       <div class="stat-card">
         <div class="stat-icon green">
-          <i data-feather="thumbs-up"></i>
+          <i data-feather="shield"></i>
         </div>
         <div class="stat-info">
-          <div class="stat-val" id="stat-q1-yes-count">0</div>
-          <div class="stat-label">Q1 Yes (Relief)</div>
+          <div class="stat-val" id="stat-zero-rash-rate">0%</div>
+          <div class="stat-label">Zero Irritation Rate</div>
         </div>
       </div>
 
       <div class="stat-card">
         <div class="stat-icon purple">
-          <i data-feather="star"></i>
+          <i data-feather="check-circle"></i>
         </div>
         <div class="stat-info">
-          <div class="stat-val" id="stat-q1-avg-score">0.0</div>
-          <div class="stat-label">Avg Rating (1 to 5)</div>
+          <div class="stat-val" id="stat-zero-leak-rate">0%</div>
+          <div class="stat-label">Zero Leakage Rate</div>
         </div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-icon blue">
-          <i data-feather="check-shield"></i>
+        <div class="stat-icon pink">
+          <i data-feather="heart"></i>
         </div>
         <div class="stat-info">
-          <div class="stat-val" id="stat-contact-shared">0</div>
-          <div class="stat-label">Verified Emails</div>
+          <div class="stat-val" id="stat-better-exp-rate">0%</div>
+          <div class="stat-label">Better vs Regular</div>
         </div>
       </div>
     </div>
@@ -137,7 +137,7 @@
         type="text"
         id="search-box"
         class="search-input"
-        placeholder="Search by respondent name, email, phone, or answer keyword..."
+        placeholder="Search responses by respondent email, name, or choice keyword..."
       />
     </div>
 
@@ -151,32 +151,50 @@
 
       <button class="tab-btn" data-tab="q1">
         <i data-feather="activity" style="width: 14px; height: 14px;"></i>
-        <span>QN 1: Relief & Rating</span>
+        <span>Q1: Rashes &amp; Itching</span>
         <span class="tab-count" id="count-q1">0</span>
       </button>
 
       <button class="tab-btn" data-tab="q2">
-        <i data-feather="alert-circle" style="width: 14px; height: 14px;"></i>
-        <span>QN 2: Flaws / Problems</span>
+        <i data-feather="zap" style="width: 14px; height: 14px;"></i>
+        <span>Q2: Stinging / Jalan</span>
         <span class="tab-count" id="count-q2">0</span>
       </button>
 
       <button class="tab-btn" data-tab="q3">
-        <i data-feather="help-circle" style="width: 14px; height: 14px;"></i>
-        <span>QN 3: Market Wishlist</span>
+        <i data-feather="droplet" style="width: 14px; height: 14px;"></i>
+        <span>Q3: Dampness &amp; Sweat</span>
         <span class="tab-count" id="count-q3">0</span>
       </button>
 
       <button class="tab-btn" data-tab="q4">
-        <i data-feather="repeat" style="width: 14px; height: 14px;"></i>
-        <span>QN 4: Alternate Solutions</span>
+        <i data-feather="smile" style="width: 14px; height: 14px;"></i>
+        <span>Q4: Vulvar Skin</span>
         <span class="tab-count" id="count-q4">0</span>
       </button>
 
       <button class="tab-btn" data-tab="q5">
-        <i data-feather="target" style="width: 14px; height: 14px;"></i>
-        <span>QN 5: Other Pain Areas</span>
+        <i data-feather="wind" style="width: 14px; height: 14px;"></i>
+        <span>Q5: Odor Control (ZnO)</span>
         <span class="tab-count" id="count-q5">0</span>
+      </button>
+
+      <button class="tab-btn" data-tab="q6">
+        <i data-feather="clock" style="width: 14px; height: 14px;"></i>
+        <span>Q6: Absorption Speed</span>
+        <span class="tab-count" id="count-q6">0</span>
+      </button>
+
+      <button class="tab-btn" data-tab="q7">
+        <i data-feather="shield-off" style="width: 14px; height: 14px;"></i>
+        <span>Q7: Side Leakage</span>
+        <span class="tab-count" id="count-q7">0</span>
+      </button>
+
+      <button class="tab-btn" data-tab="q8">
+        <i data-feather="award" style="width: 14px; height: 14px;"></i>
+        <span>Q8: Overall vs Regular</span>
+        <span class="tab-count" id="count-q8">0</span>
       </button>
     </div>
 
@@ -194,13 +212,13 @@
       <div id="view-q1" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            QN1: Heating pad se kya period pain mein relief milta hai? (1 to 5 level)
+            Q1: Pad use karne ke baad rashes ya itching mehsoos hui?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            Distribution of Yes/No responses and Relief Levels (1 = Mild to 5 = Complete relief)
+            Distribution of Skin Comfort &amp; Irritation responses
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
-            <canvas id="q1RatingChart"></canvas>
+            <canvas id="chart-q1"></canvas>
           </div>
         </div>
         <div id="q1-submissions-list" class="qn-feed-list"></div>
@@ -209,12 +227,15 @@
       <!-- TAB: QN2 -->
       <div id="view-q2" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
-          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 3px;">
-            QN2: Aapke according heating pads ke koi flaws, drawbacks ya problems?
+          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
+            Q2: Skin par jalan ya stinging sensation (chubhan) hui?
           </h3>
-          <p style="color: #64748b; font-size: 0.82rem;">
-            Heating pad issues, design complaints & drawbacks
+          <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
+            Burning or stinging sensation frequency
           </p>
+          <div style="max-width: 540px; margin: 0 auto; height: 230px;">
+            <canvas id="chart-q2"></canvas>
+          </div>
         </div>
         <div id="q2-submissions-list" class="qn-feed-list"></div>
       </div>
@@ -222,12 +243,15 @@
       <!-- TAB: QN3 -->
       <div id="view-q3" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
-          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 3px;">
-            QN3: Period pain related aisi cheez jo aapko lagta hai market mein honi chahiye but abhi nahi hai?
+          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
+            Q3: Pad pehanne ke baad gila-pan (sweat ya dampness) mehsoos hua?
           </h3>
-          <p style="color: #64748b; font-size: 0.82rem;">
-            Market gaps, dream products, and wishlist ideas
+          <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
+            Breathability and sweat/dampness sensation
           </p>
+          <div style="max-width: 540px; margin: 0 auto; height: 230px;">
+            <canvas id="chart-q3"></canvas>
+          </div>
         </div>
         <div id="q3-submissions-list" class="qn-feed-list"></div>
       </div>
@@ -235,12 +259,15 @@
       <!-- TAB: QN4 -->
       <div id="view-q4" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
-          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 3px;">
-            QN4: Alternate solution for pain relief other than heating pad and why's that?
+          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
+            Q4: Vulvar skin soft aur normal lagi ya sticky/macerated (skin chhilna)?
           </h3>
-          <p style="color: #64748b; font-size: 0.82rem;">
-            Alternative home remedies, medications, habits, or products
+          <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
+            Vulvar skin texture and safety assessment
           </p>
+          <div style="max-width: 540px; margin: 0 auto; height: 230px;">
+            <canvas id="chart-q4"></canvas>
+          </div>
         </div>
         <div id="q4-submissions-list" class="qn-feed-list"></div>
       </div>
@@ -248,14 +275,65 @@
       <!-- TAB: QN5 -->
       <div id="view-q5" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
-          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 3px;">
-            QN5: Kya aap kisi aur tarah ka pain face karte hain? Pain area batayein aur kya heating pad usme kaam karta hai?
+          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
+            Q5: Blood breakdown ya foul odor (badboo) kitni control hui?
           </h3>
-          <p style="color: #64748b; font-size: 0.82rem;">
-            Other body pain areas (back, neck, cramps) and heating pad effectiveness
+          <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
+            ZnO / Pathogen odor suppression efficacy
           </p>
+          <div style="max-width: 540px; margin: 0 auto; height: 230px;">
+            <canvas id="chart-q5"></canvas>
+          </div>
         </div>
         <div id="q5-submissions-list" class="qn-feed-list"></div>
+      </div>
+
+      <!-- TAB: QN6 -->
+      <div id="view-q6" class="tab-view" style="display: none;">
+        <div class="survey-card" style="margin-bottom: 16px;">
+          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
+            Q6: Clots aur heavy blood pass hone ki speed kaisi thi?
+          </h3>
+          <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
+            Absorption speed &amp; surface dryness
+          </p>
+          <div style="max-width: 540px; margin: 0 auto; height: 230px;">
+            <canvas id="chart-q6"></canvas>
+          </div>
+        </div>
+        <div id="q6-submissions-list" class="qn-feed-list"></div>
+      </div>
+
+      <!-- TAB: QN7 -->
+      <div id="view-q7" class="tab-view" style="display: none;">
+        <div class="survey-card" style="margin-bottom: 16px;">
+          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
+            Q7: Side leakage ka issue aaya?
+          </h3>
+          <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
+            Side leakage prevention efficacy
+          </p>
+          <div style="max-width: 540px; margin: 0 auto; height: 230px;">
+            <canvas id="chart-q7"></canvas>
+          </div>
+        </div>
+        <div id="q7-submissions-list" class="qn-feed-list"></div>
+      </div>
+
+      <!-- TAB: QN8 -->
+      <div id="view-q8" class="tab-view" style="display: none;">
+        <div class="survey-card" style="margin-bottom: 16px;">
+          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
+            Q8: Regular sanitary pad ke mukable VYVIA ka overall experience kaisa tha?
+          </h3>
+          <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
+            Overall comparative satisfaction rating
+          </p>
+          <div style="max-width: 540px; margin: 0 auto; height: 230px;">
+            <canvas id="chart-q8"></canvas>
+          </div>
+        </div>
+        <div id="q8-submissions-list" class="qn-feed-list"></div>
       </div>
 
     </div>
@@ -273,7 +351,7 @@
           <span>Survey Program By <strong>Anshika</strong></span>
         </div>
       </div>
-      <p class="footer-note">Confidential Admin Portal &bull; Pain Relief & Heating Pad Survey</p>
+      <p class="footer-note">Confidential Admin Portal &bull; VYVIA Sanitary Pad Research</p>
     </footer>
   </div>
 

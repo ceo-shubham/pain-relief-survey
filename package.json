@@ -1,12 +1,12 @@
 {
-  "name": "pain-relief-survey",
+  "name": "vyvia-survey",
   "version": "1.0.0",
-  "description": "Pain Relief & Heating Pad Survey Web Application with Admin Dashboard",
+  "description": "VYVIA Sanitary Pad Feedback Survey Web Application with Admin Dashboard",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "deploy:cf": "node deploy-to-cloudflare.js"
+    "deploy:cf": "npx wrangler deploy"
   },
   "dependencies": {
     "cors": "^2.8.5",

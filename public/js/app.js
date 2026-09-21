@@ -22,46 +22,30 @@ function parseJwt(token) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const q1YesBtn = document.getElementById('q1-yes-btn');
-  const q1NoBtn = document.getElementById('q1-no-btn');
-  const q1ReliefInput = document.getElementById('q1_relief');
-  const q1RatingContainer = document.getElementById('q1-rating-container');
-  const q1LevelInput = document.getElementById('q1_level');
-  const ratingChips = document.querySelectorAll('.rating-chip');
-
   const surveyForm = document.getElementById('survey-form');
   const surveySection = document.getElementById('survey-section');
   const successScreen = document.getElementById('success-screen');
   const submitBtn = document.getElementById('submit-btn');
   const btnSubmitAnother = document.getElementById('btn-submit-another');
 
-  // Handle Q1 Yes / No Click
-  q1YesBtn.addEventListener('click', () => {
-    q1ReliefInput.value = 'yes';
-    q1YesBtn.classList.add('selected-yes');
-    q1NoBtn.classList.remove('selected-no');
-    
-    // Reveal rating scale smoothly
-    q1RatingContainer.style.display = 'block';
-  });
+  // Handle Option Card Selections for all question grids
+  const optionGrids = document.querySelectorAll('.options-grid');
+  optionGrids.forEach(grid => {
+    const questionName = grid.dataset.question;
+    const hiddenInput = document.getElementById(questionName);
+    const optionCards = grid.querySelectorAll('.option-card');
 
-  q1NoBtn.addEventListener('click', () => {
-    q1ReliefInput.value = 'no';
-    q1NoBtn.classList.add('selected-no');
-    q1YesBtn.classList.remove('selected-yes');
-    
-    // Hide rating scale and clear level
-    q1RatingContainer.style.display = 'none';
-    q1LevelInput.value = '';
-    ratingChips.forEach(chip => chip.classList.remove('selected'));
-  });
-
-  // Handle Rating Chip Click (1 to 5)
-  ratingChips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      ratingChips.forEach(c => c.classList.remove('selected'));
-      chip.classList.add('selected');
-      q1LevelInput.value = chip.dataset.rating;
+    optionCards.forEach(card => {
+      card.addEventListener('click', () => {
+        // Remove selected state from sibling cards in the same grid
+        optionCards.forEach(c => c.classList.remove('selected'));
+        // Add selected to clicked card
+        card.classList.add('selected');
+        // Update hidden input
+        if (hiddenInput) {
+          hiddenInput.value = card.dataset.value;
+        }
+      });
     });
   });
 
@@ -74,17 +58,44 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    const q1 = document.getElementById('q1_rashes').value;
+    const q2 = document.getElementById('q2_stinging').value;
+    const q3 = document.getElementById('q3_dampness').value;
+    const q4 = document.getElementById('q4_skin_texture').value;
+    const q5 = document.getElementById('q5_odor_control').value;
+    const q6 = document.getElementById('q6_absorption').value;
+    const q7 = document.getElementById('q7_leakage').value;
+    const q8 = document.getElementById('q8_overall_experience').value;
+
+    // Check if any question is missed
+    const missing = [];
+    if (!q1) missing.push('Q1 (Rashes/Itching)');
+    if (!q2) missing.push('Q2 (Stinging/Jalan)');
+    if (!q3) missing.push('Q3 (Dampness/Sweat)');
+    if (!q4) missing.push('Q4 (Vulvar Skin Condition)');
+    if (!q5) missing.push('Q5 (Odor Control)');
+    if (!q6) missing.push('Q6 (Absorption Speed)');
+    if (!q7) missing.push('Q7 (Side Leakage)');
+    if (!q8) missing.push('Q8 (Overall Comparison)');
+
+    if (missing.length > 0) {
+      alert(`Kripya sabhi sawalon ke options select karein.\nBaqi sawal: ${missing.join(', ')}`);
+      return;
+    }
+
     const email = currentGoogleUser.email || '';
     const name = currentGoogleUser.name || 'Verified User';
 
     // Prepare payload
     const formData = {
-      q1_relief: q1ReliefInput.value || '',
-      q1_level: q1LevelInput.value ? Number(q1LevelInput.value) : null,
-      q2_flaws: document.getElementById('q2_flaws').value.trim(),
-      q3_market_gap: document.getElementById('q3_market_gap').value.trim(),
-      q4_alternate: document.getElementById('q4_alternate').value.trim(),
-      q5_other_pain: document.getElementById('q5_other_pain').value.trim(),
+      q1_rashes: q1,
+      q2_stinging: q2,
+      q3_dampness: q3,
+      q4_skin_texture: q4,
+      q5_odor_control: q5,
+      q6_absorption: q6,
+      q7_leakage: q7,
+      q8_overall_experience: q8,
       name: name,
       email: email,
       phone: ''
@@ -93,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Button loading state
     const originalBtnHtml = submitBtn.innerHTML;
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span>Saving response...</span>';
+    submitBtn.innerHTML = '<span>Saving VYVIA response...</span>';
 
     try {
       const response = await fetch('/api/submit', {
@@ -126,12 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Submit another response
   btnSubmitAnother.addEventListener('click', () => {
     surveyForm.reset();
-    q1ReliefInput.value = '';
-    q1LevelInput.value = '';
-    q1YesBtn.classList.remove('selected-yes');
-    q1NoBtn.classList.remove('selected-no');
-    q1RatingContainer.style.display = 'none';
-    ratingChips.forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('input[type="hidden"]').forEach(input => {
+      input.value = '';
+    });
 
     successScreen.style.display = 'none';
     surveySection.style.display = 'block';

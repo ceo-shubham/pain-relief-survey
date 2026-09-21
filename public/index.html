@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Pain Relief & Heating Pad Feedback Survey</title>
+  <title>VYVIA Sanitary Pad Feedback Survey</title>
   <link rel="icon" type="image/png" href="/logo.png" />
   <link rel="shortcut icon" href="/logo.png" />
   <link rel="stylesheet" href="/css/styles.css" />
-  <!-- Feather Icons for lightweight modern icons -->
+  <!-- Feather Icons -->
   <script src="https://unpkg.com/feather-icons"></script>
   <!-- Google Identity Services (GIS) SDK -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -18,9 +18,9 @@
     <header class="app-header">
       <div class="badge-tag">
         <i data-feather="heart" style="width: 14px; height: 14px;"></i>
-        <span>Quick Community Survey</span>
+        <span>VYVIA Product Experience Survey</span>
       </div>
-      <h1 class="app-title">Pain Relief & Heating Pad Survey</h1>
+      <h1 class="app-title">VYVIA Sanitary Pad Feedback</h1>
       <p class="app-subtitle">
         Aapka experience humare liye important hai. Kripya apna honest feedback share karein.
       </p>
@@ -66,59 +66,54 @@
 
       <form id="survey-form" style="display: none;">
 
+        <!-- ================= SECTION 1 ================= -->
+        <div class="section-divider-card">
+          <div class="section-badge">Section 1</div>
+          <h2 class="section-title">Skin Comfort &amp; Irritation</h2>
+          <p class="section-subtitle">Acid Mantle Protection &amp; Friction Prevention</p>
+        </div>
+
         <!-- Question 1 -->
         <div class="survey-card" id="card-q1">
           <div class="card-header">
             <span class="q-badge">Q1</span>
             <div class="q-title-wrap">
-              <h2 class="q-title">Heating pad se kya period pain mein relief milta hai?</h2>
-              <p class="q-subtext">Does heating pad relieve period pain for you? <span class="optional-tag">Optional</span></p>
+              <h2 class="q-title">Pad use karne ke baad rashes ya itching mehsoos hui?</h2>
+              <p class="q-subtext">Did you experience any rashes or itching after using the pad?</p>
             </div>
           </div>
           <div class="card-body">
-            <!-- Yes / No Options -->
-            <div class="yes-no-group">
-              <button type="button" class="choice-btn" id="q1-yes-btn" data-value="yes">
-                <span>👍</span>
-                <span>Yes, Relief milta hai</span>
+            <div class="options-grid" data-question="q1_rashes">
+              <button type="button" class="option-card" data-value="Bilkul nahi (Zero irritation)">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Bilkul nahi (Zero irritation)</span>
+                  <span class="option-tag tag-green">Zero Rash</span>
+                </div>
               </button>
-              <button type="button" class="choice-btn" id="q1-no-btn" data-value="no">
-                <span>👎</span>
-                <span>No, Relief nahi milta</span>
+              <button type="button" class="option-card" data-value="Bohat kam">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Bohat kam</span>
+                  <span class="option-tag tag-blue">Minimal</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Moderate (Kabhi kabhi)">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Moderate (Kabhi kabhi)</span>
+                  <span class="option-tag tag-yellow">Occasional</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Severe (Kaafi zyada rashes)">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Severe (Kaafi zyada rashes)</span>
+                  <span class="option-tag tag-red">Severe</span>
+                </div>
               </button>
             </div>
-            <input type="hidden" id="q1_relief" name="q1_relief" value="" />
-
-            <!-- Rating scale if YES -->
-            <div class="rating-section" id="q1-rating-container" style="display: none;">
-              <div class="rating-title">
-                <i data-feather="sliders" style="width: 16px; height: 16px; color: #e11d48;"></i>
-                <span>1 to 5 level tak kitna relief milta hai? (Select one)</span>
-              </div>
-              <div class="rating-grid">
-                <div class="rating-chip" data-rating="1">
-                  <span class="rate-num">1</span>
-                  <span class="rate-label">Mild (10-20%)</span>
-                </div>
-                <div class="rating-chip" data-rating="2">
-                  <span class="rate-num">2</span>
-                  <span class="rate-label">Slight (30-40%)</span>
-                </div>
-                <div class="rating-chip" data-rating="3">
-                  <span class="rate-num">3</span>
-                  <span class="rate-label">Moderate (50-60%)</span>
-                </div>
-                <div class="rating-chip" data-rating="4">
-                  <span class="rate-num">4</span>
-                  <span class="rate-label">Good (70-80%)</span>
-                </div>
-                <div class="rating-chip" data-rating="5">
-                  <span class="rate-num">5</span>
-                  <span class="rate-label">Complete (90-100%)</span>
-                </div>
-              </div>
-              <input type="hidden" id="q1_level" name="q1_level" value="" />
-            </div>
+            <input type="hidden" id="q1_rashes" name="q1_rashes" value="" required />
           </div>
         </div>
 
@@ -127,20 +122,43 @@
           <div class="card-header">
             <span class="q-badge">Q2</span>
             <div class="q-title-wrap">
-              <h2 class="q-title">Aapke according heating pads ke koi flaws, drawbacks ya problems?</h2>
-              <p class="q-subtext">What issues do you face while using heating pads? <span class="optional-tag">Optional</span></p>
+              <h2 class="q-title">Skin par jalan ya stinging sensation (chubhan) hui?</h2>
+              <p class="q-subtext">Any burning or stinging sensation on the skin?</p>
             </div>
           </div>
           <div class="card-body">
-            <textarea
-              class="form-textarea"
-              id="q2_flaws"
-              name="q2_flaws"
-              rows="3"
-              placeholder="e.g. Wire choti hoti hai, carry karna difficult hai, bahut heavy hai, ya temperature control theek nahi hota..."
-            ></textarea>
-            <div class="input-hint">Descriptive or brief feedback</div>
+            <div class="options-grid" data-question="q2_stinging">
+              <button type="button" class="option-card" data-value="Bilkul nahi">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Bilkul nahi</span>
+                  <span class="option-tag tag-green">No Stinging</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Sirf light flow ke time">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Sirf light flow ke time</span>
+                  <span class="option-tag tag-yellow">Light Flow Only</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Pehle din se continuous">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Pehle din se continuous</span>
+                  <span class="option-tag tag-red">Continuous</span>
+                </div>
+              </button>
+            </div>
+            <input type="hidden" id="q2_stinging" name="q2_stinging" value="" required />
           </div>
+        </div>
+
+        <!-- ================= SECTION 2 ================= -->
+        <div class="section-divider-card">
+          <div class="section-badge">Section 2</div>
+          <h2 class="section-title">Dampness &amp; Breathability</h2>
+          <p class="section-subtitle">Airflow &amp; Vulvar Skin Safety</p>
         </div>
 
         <!-- Question 3 -->
@@ -148,19 +166,35 @@
           <div class="card-header">
             <span class="q-badge">Q3</span>
             <div class="q-title-wrap">
-              <h2 class="q-title">Period pain related aisi cheez jo aapko lagta hai market mein honi chahiye, but abhi nahi hai?</h2>
-              <p class="q-subtext">What missing product/solution do you wish existed? <span class="optional-tag">Optional</span></p>
+              <h2 class="q-title">Pad pehanne ke baad gila-pan (sweat ya dampness) mehsoos hua?</h2>
+              <p class="q-subtext">Did you feel wetness, sweat or dampness while wearing the pad?</p>
             </div>
           </div>
           <div class="card-body">
-            <textarea
-              class="form-textarea"
-              id="q3_market_gap"
-              name="q3_market_gap"
-              rows="3"
-              placeholder="e.g. Invisible wearable heated patch, discreet belt under clothes, fast soothing roll-on..."
-            ></textarea>
-            <div class="input-hint">Descriptive or idea</div>
+            <div class="options-grid" data-question="q3_dampness">
+              <button type="button" class="option-card" data-value="Dry and fresh laga">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Dry and fresh laga</span>
+                  <span class="option-tag tag-green">Dry &amp; Fresh</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Thoda sa gila-pan tha">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Thoda sa gila-pan tha</span>
+                  <span class="option-tag tag-yellow">Mild Dampness</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Bohot zyada pasina/dampness tha">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Bohot zyada pasina/dampness tha</span>
+                  <span class="option-tag tag-red">Heavy Sweat</span>
+                </div>
+              </button>
+            </div>
+            <input type="hidden" id="q3_dampness" name="q3_dampness" value="" required />
           </div>
         </div>
 
@@ -169,20 +203,43 @@
           <div class="card-header">
             <span class="q-badge">Q4</span>
             <div class="q-title-wrap">
-              <h2 class="q-title">Alternate solution for pain relief other than heating pad, and why?</h2>
-              <p class="q-subtext">Heating pad ke alawa aap kya use karte hain aur kyu? <span class="optional-tag">Optional</span></p>
+              <h2 class="q-title">Vulvar skin soft aur normal lagi ya sticky/macerated (skin chhilna)?</h2>
+              <p class="q-subtext">How did your delicate skin feel during usage?</p>
             </div>
           </div>
           <div class="card-body">
-            <textarea
-              class="form-textarea"
-              id="q4_alternate"
-              name="q4_alternate"
-              rows="2"
-              placeholder="e.g. Herbal Chamomile tea, Acupressure patch, Meftal Spas, Hot bath, Yoga (One word or brief description)"
-            ></textarea>
-            <div class="input-hint">One word or brief description</div>
+            <div class="options-grid" data-question="q4_skin_texture">
+              <button type="button" class="option-card" data-value="Skin normal aur safe rahi">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Skin normal aur safe rahi</span>
+                  <span class="option-tag tag-green">Soft &amp; Safe</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Thodi sticky lagi">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Thodi sticky lagi</span>
+                  <span class="option-tag tag-yellow">Slightly Sticky</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Skin chhil gayi / redness aayi">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Skin chhil gayi / redness aayi</span>
+                  <span class="option-tag tag-red">Macerated / Red</span>
+                </div>
+              </button>
+            </div>
+            <input type="hidden" id="q4_skin_texture" name="q4_skin_texture" value="" required />
           </div>
+        </div>
+
+        <!-- ================= SECTION 3 ================= -->
+        <div class="section-divider-card">
+          <div class="section-badge">Section 3</div>
+          <h2 class="section-title">Odor &amp; Freshness</h2>
+          <p class="section-subtitle">ZnO / Pathogen Control &amp; Smell Suppression</p>
         </div>
 
         <!-- Question 5 -->
@@ -190,19 +247,160 @@
           <div class="card-header">
             <span class="q-badge">Q5</span>
             <div class="q-title-wrap">
-              <h2 class="q-title">Kya aap kisi aur tarah ka pain face karte hain? Pain area batayein aur kya heating pad usme kaam karta hai?</h2>
-              <p class="q-subtext">Any other body pain areas, and does heating pad help there? <span class="optional-tag">Optional</span></p>
+              <h2 class="q-title">Blood breakdown ya foul odor (badboo) kitni control hui?</h2>
+              <p class="q-subtext">How effectively was period odor controlled?</p>
             </div>
           </div>
           <div class="card-body">
-            <textarea
-              class="form-textarea"
-              id="q5_other_pain"
-              name="q5_other_pain"
-              rows="3"
-              placeholder="e.g. Lower back pain, Neck stiffness, Muscle soreness - Yes, heating pad helps a lot with lower back."
-            ></textarea>
-            <div class="input-hint">Descriptive feedback</div>
+            <div class="options-grid" data-question="q5_odor_control">
+              <button type="button" class="option-card" data-value="100% koi smell nahi aayi">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">100% koi smell nahi aayi</span>
+                  <span class="option-tag tag-green">Zero Odor (100%)</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Kaafi hadd tak control thi">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Kaafi hadd tak control thi</span>
+                  <span class="option-tag tag-blue">Well Controlled</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Regular pads jaisi hi smell thi">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Regular pads jaisi hi smell thi</span>
+                  <span class="option-tag tag-yellow">Same as Regular</span>
+                </div>
+              </button>
+            </div>
+            <input type="hidden" id="q5_odor_control" name="q5_odor_control" value="" required />
+          </div>
+        </div>
+
+        <!-- ================= SECTION 4 ================= -->
+        <div class="section-divider-card">
+          <div class="section-badge">Section 4</div>
+          <h2 class="section-title">Absorption &amp; Clot Handling</h2>
+          <p class="section-subtitle">Speed, Surface Dryness &amp; Leakage Prevention</p>
+        </div>
+
+        <!-- Question 6 -->
+        <div class="survey-card" id="card-q6">
+          <div class="card-header">
+            <span class="q-badge">Q6</span>
+            <div class="q-title-wrap">
+              <h2 class="q-title">Clots aur heavy blood pass hone ki speed kaisi thi?</h2>
+              <p class="q-subtext">How fast did the pad absorb heavy flow &amp; clots?</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="options-grid" data-question="q6_absorption">
+              <button type="button" class="option-card" data-value="Turant absorb ho gaya (Surface dry raha)">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Turant absorb ho gaya (Surface dry raha)</span>
+                  <span class="option-tag tag-green">Instant Absorption</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Normal time liya">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Normal time liya</span>
+                  <span class="option-tag tag-blue">Normal Speed</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Upar hi thehra raha (Slow absorption)">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Upar hi thehra raha (Slow absorption)</span>
+                  <span class="option-tag tag-red">Slow / Pooled</span>
+                </div>
+              </button>
+            </div>
+            <input type="hidden" id="q6_absorption" name="q6_absorption" value="" required />
+          </div>
+        </div>
+
+        <!-- Question 7 -->
+        <div class="survey-card" id="card-q7">
+          <div class="card-header">
+            <span class="q-badge">Q7</span>
+            <div class="q-title-wrap">
+              <h2 class="q-title">Side leakage ka issue aaya?</h2>
+              <p class="q-subtext">Did you encounter any side leakage issues?</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="options-grid" data-question="q7_leakage">
+              <button type="button" class="option-card" data-value="Zero leakage">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Zero leakage</span>
+                  <span class="option-tag tag-green">Zero Leakage</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Heavy flow ke din thoda leak hua">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Heavy flow ke din thoda leak hua</span>
+                  <span class="option-tag tag-yellow">Slight on Heavy Days</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Kaafi leakage hui">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Kaafi leakage hui</span>
+                  <span class="option-tag tag-red">Frequent Leakage</span>
+                </div>
+              </button>
+            </div>
+            <input type="hidden" id="q7_leakage" name="q7_leakage" value="" required />
+          </div>
+        </div>
+
+        <!-- ================= SECTION 5 ================= -->
+        <div class="section-divider-card">
+          <div class="section-badge">Section 5</div>
+          <h2 class="section-title">Overall Comparison</h2>
+          <p class="section-subtitle">VYVIA Experience vs Regular Sanitary Pads</p>
+        </div>
+
+        <!-- Question 8 -->
+        <div class="survey-card" id="card-q8">
+          <div class="card-header">
+            <span class="q-badge">Q8</span>
+            <div class="q-title-wrap">
+              <h2 class="q-title">Regular sanitary pad ke mukable VYVIA ka overall experience kaisa tha?</h2>
+              <p class="q-subtext">How does VYVIA compare to conventional pads overall?</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="options-grid" data-question="q8_overall_experience">
+              <button type="button" class="option-card" data-value="Bohot behtar (No rash + fresh feeling)">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Bohot behtar (No rash + fresh feeling)</span>
+                  <span class="option-tag tag-green">Much Better</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Lagbhag same">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Lagbhag same</span>
+                  <span class="option-tag tag-yellow">About The Same</span>
+                </div>
+              </button>
+              <button type="button" class="option-card" data-value="Uncomfortable laga">
+                <div class="radio-indicator"></div>
+                <div class="option-content">
+                  <span class="option-text">Uncomfortable laga</span>
+                  <span class="option-tag tag-red">Uncomfortable</span>
+                </div>
+              </button>
+            </div>
+            <input type="hidden" id="q8_overall_experience" name="q8_overall_experience" value="" required />
           </div>
         </div>
 
@@ -210,7 +408,7 @@
         <div class="submit-wrapper">
           <button type="submit" class="btn-primary" id="submit-btn">
             <i data-feather="send" style="width: 18px; height: 18px;"></i>
-            <span>Submit Response</span>
+            <span>Submit VYVIA Feedback</span>
           </button>
         </div>
       </form>
@@ -226,7 +424,7 @@
           Thank You for Your Feedback!
         </h2>
         <p style="color: #64748b; font-size: 1.05rem; max-width: 480px; margin: 0 auto 24px;">
-          Aapka response successfully save ho gaya hai. Aapka feedback humare liye bahut valuable hai.
+          Aapka VYVIA survey response successfully record ho gaya hai. Aapka valuable feedback women's intimate health aur comfort improve karne mein madad karega.
         </p>
         <button type="button" class="btn-primary" style="max-width: 260px; margin: 0 auto;" id="btn-submit-another">
           Submit Another Response
@@ -247,7 +445,7 @@
           <span>Survey Program By <strong>Anshika</strong></span>
         </div>
       </div>
-      <p class="footer-note">Confidential Community Research Survey</p>
+      <p class="footer-note">Confidential VYVIA Research &amp; Product Survey</p>
       <p style="margin-top: 6px;">
         <a href="/admin" class="footer-admin-link">Admin Dashboard &rarr;</a>
       </p>

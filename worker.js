@@ -74,12 +74,14 @@ export default {
       try {
         const body = await request.json();
         const {
-          q1_relief,
-          q1_level,
-          q2_flaws,
-          q3_market_gap,
-          q4_alternate,
-          q5_other_pain,
+          q1_rashes,
+          q2_stinging,
+          q3_dampness,
+          q4_skin_texture,
+          q5_odor_control,
+          q6_absorption,
+          q7_leakage,
+          q8_overall_experience,
           name,
           email,
           phone
@@ -88,13 +90,15 @@ export default {
         const newEntry = {
           id: 'sub_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
           createdAt: new Date().toISOString(),
-          q1_relief: q1_relief || null,
-          q1_level: q1_relief === 'yes' && q1_level ? Number(q1_level) : null,
-          q2_flaws: (q2_flaws || '').trim(),
-          q3_market_gap: (q3_market_gap || '').trim(),
-          q4_alternate: (q4_alternate || '').trim(),
-          q5_other_pain: (q5_other_pain || '').trim(),
-          name: (name || '').trim() || 'Anonymous',
+          q1_rashes: (q1_rashes || '').trim(),
+          q2_stinging: (q2_stinging || '').trim(),
+          q3_dampness: (q3_dampness || '').trim(),
+          q4_skin_texture: (q4_skin_texture || '').trim(),
+          q5_odor_control: (q5_odor_control || '').trim(),
+          q6_absorption: (q6_absorption || '').trim(),
+          q7_leakage: (q7_leakage || '').trim(),
+          q8_overall_experience: (q8_overall_experience || '').trim(),
+          name: (name || '').trim() || 'Verified Respondent',
           email: (email || '').trim(),
           phone: (phone || '').trim()
         };
@@ -105,7 +109,7 @@ export default {
 
         return json({
           success: true,
-          message: 'Survey response submitted successfully!',
+          message: 'VYVIA survey response submitted successfully!',
           submission: newEntry
         }, 201);
       } catch (err) {
@@ -113,7 +117,7 @@ export default {
       }
     }
 
-    // Protected Admin Endpoints
+    // Protected Admin Endpoints Check
     if (pathname === '/api/submissions' || pathname === '/api/stats' || pathname.startsWith('/api/submissions/') || pathname === '/api/export') {
       if (!isAuthorized()) {
         return json({ success: false, message: 'Unauthorized: Password required' }, 401);
@@ -131,10 +135,14 @@ export default {
             (item.name && item.name.toLowerCase().includes(search)) ||
             (item.email && item.email.toLowerCase().includes(search)) ||
             (item.phone && item.phone.toLowerCase().includes(search)) ||
-            (item.q2_flaws && item.q2_flaws.toLowerCase().includes(search)) ||
-            (item.q3_market_gap && item.q3_market_gap.toLowerCase().includes(search)) ||
-            (item.q4_alternate && item.q4_alternate.toLowerCase().includes(search)) ||
-            (item.q5_other_pain && item.q5_other_pain.toLowerCase().includes(search))
+            (item.q1_rashes && item.q1_rashes.toLowerCase().includes(search)) ||
+            (item.q2_stinging && item.q2_stinging.toLowerCase().includes(search)) ||
+            (item.q3_dampness && item.q3_dampness.toLowerCase().includes(search)) ||
+            (item.q4_skin_texture && item.q4_skin_texture.toLowerCase().includes(search)) ||
+            (item.q5_odor_control && item.q5_odor_control.toLowerCase().includes(search)) ||
+            (item.q6_absorption && item.q6_absorption.toLowerCase().includes(search)) ||
+            (item.q7_leakage && item.q7_leakage.toLowerCase().includes(search)) ||
+            (item.q8_overall_experience && item.q8_overall_experience.toLowerCase().includes(search))
           );
         });
       }
@@ -151,57 +159,55 @@ export default {
       const submissions = await getSubmissions();
       const total = submissions.length;
 
-      let q1_yes = 0;
-      let q1_no = 0;
-      let q1_ratings = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
-      let ratingSum = 0;
-      let ratingCount = 0;
+      const questions = {
+        q1: {},
+        q2: {},
+        q3: {},
+        q4: {},
+        q5: {},
+        q6: {},
+        q7: {},
+        q8: {}
+      };
 
-      let contactCount = 0;
-      let q2_count = 0;
-      let q3_count = 0;
-      let q4_count = 0;
-      let q5_count = 0;
+      const questionCounts = {
+        q1: 0,
+        q2: 0,
+        q3: 0,
+        q4: 0,
+        q5: 0,
+        q6: 0,
+        q7: 0,
+        q8: 0
+      };
 
       submissions.forEach(sub => {
-        if (sub.q1_relief === 'yes') {
-          q1_yes++;
-          if (sub.q1_level && sub.q1_level >= 1 && sub.q1_level <= 5) {
-            q1_ratings[String(sub.q1_level)]++;
-            ratingSum += sub.q1_level;
-            ratingCount++;
+        for (let i = 1; i <= 8; i++) {
+          const field = [
+            '',
+            'q1_rashes',
+            'q2_stinging',
+            'q3_dampness',
+            'q4_skin_texture',
+            'q5_odor_control',
+            'q6_absorption',
+            'q7_leakage',
+            'q8_overall_experience'
+          ][i];
+
+          const val = sub[field];
+          if (val) {
+            questionCounts[`q${i}`]++;
+            questions[`q${i}`][val] = (questions[`q${i}`][val] || 0) + 1;
           }
-        } else if (sub.q1_relief === 'no') {
-          q1_no++;
         }
-
-        if (sub.name !== 'Anonymous' || sub.email || sub.phone) contactCount++;
-        if (sub.q2_flaws) q2_count++;
-        if (sub.q3_market_gap) q3_count++;
-        if (sub.q4_alternate) q4_count++;
-        if (sub.q5_other_pain) q5_count++;
       });
-
-      const avgReliefScore = ratingCount > 0 ? (ratingSum / ratingCount).toFixed(1) : 0;
 
       return json({
         success: true,
         total,
-        contactCount,
-        q1: {
-          yes: q1_yes,
-          no: q1_no,
-          unanswered: total - (q1_yes + q1_no),
-          ratings: q1_ratings,
-          avgScore: avgReliefScore
-        },
-        questionResponseCounts: {
-          q1: q1_yes + q1_no,
-          q2: q2_count,
-          q3: q3_count,
-          q4: q4_count,
-          q5: q5_count
-        }
+        questionCounts,
+        questions
       });
     }
 
@@ -220,18 +226,21 @@ export default {
       return json({ success: true, message: 'Submission deleted' });
     }
 
-    // API: Export CSV (Headers: Email, Ans1, Ans2, Ans3, Ans4, Ans5, Date & Time)
+    // API: Export CSV
     if (pathname === '/api/export' && request.method === 'GET') {
       const submissions = await getSubmissions();
 
       const headers = [
-        'Email',
-        'Ans1 (Heating Pad Relief & Level)',
-        'Ans2 (Flaws & Drawbacks)',
-        'Ans3 (Market Gap / Missing Product)',
-        'Ans4 (Alternate Solution & Why)',
-        'Ans5 (Other Pain Areas & Efficacy)',
-        'Date & Time'
+        'Respondent Email',
+        'Q1 (Rashes/Itching)',
+        'Q2 (Stinging/Jalan)',
+        'Q3 (Dampness/Sweat)',
+        'Q4 (Vulvar Skin Condition)',
+        'Q5 (Odor Control - ZnO)',
+        'Q6 (Absorption Speed)',
+        'Q7 (Side Leakage)',
+        'Q8 (Overall VYVIA vs Regular)',
+        'Submission Date & Time'
       ];
 
       const escapeCSV = (val) => {
@@ -240,22 +249,16 @@ export default {
         return `"${str}"`;
       };
 
-      const formatAns1 = (sub) => {
-        if (sub.q1_relief === 'yes') {
-          return sub.q1_level ? `Yes (Level ${sub.q1_level}/5)` : 'Yes (Relief Milta Hai)';
-        } else if (sub.q1_relief === 'no') {
-          return 'No (Relief Nahi Milta)';
-        }
-        return 'Not Answered';
-      };
-
       const rows = submissions.map(sub => [
         escapeCSV(sub.email || '-'),
-        escapeCSV(formatAns1(sub)),
-        escapeCSV(sub.q2_flaws || '-'),
-        escapeCSV(sub.q3_market_gap || '-'),
-        escapeCSV(sub.q4_alternate || '-'),
-        escapeCSV(sub.q5_other_pain || '-'),
+        escapeCSV(sub.q1_rashes || '-'),
+        escapeCSV(sub.q2_stinging || '-'),
+        escapeCSV(sub.q3_dampness || '-'),
+        escapeCSV(sub.q4_skin_texture || '-'),
+        escapeCSV(sub.q5_odor_control || '-'),
+        escapeCSV(sub.q6_absorption || '-'),
+        escapeCSV(sub.q7_leakage || '-'),
+        escapeCSV(sub.q8_overall_experience || '-'),
         escapeCSV(new Date(sub.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }))
       ].join(','));
 
@@ -264,7 +267,7 @@ export default {
       return new Response(csvContent, {
         headers: {
           'Content-Type': 'text/csv; charset=utf-8',
-          'Content-Disposition': 'attachment; filename="Pain_Relief_Survey_Responses.csv"'
+          'Content-Disposition': 'attachment; filename="VYVIA_Survey_Responses.csv"'
         }
       });
     }
@@ -279,6 +282,6 @@ export default {
       return env.ASSETS.fetch(request);
     }
 
-    return new Response('Survey Worker Running', { status: 200 });
+    return new Response('VYVIA Survey Worker Running', { status: 200 });
   }
 };

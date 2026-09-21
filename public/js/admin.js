@@ -1,6 +1,6 @@
 let allSubmissions = [];
 let currentTab = 'all';
-let q1ChartInstance = null;
+let charts = {};
 
 const AUTH_KEY = 'survey_admin_token';
 
@@ -137,7 +137,7 @@ async function fetchData() {
 
     if (statsData.success) {
       updateKpis(statsData);
-      renderQ1Chart(statsData);
+      renderAllCharts(statsData);
     }
 
     const searchQuery = document.getElementById('search-box').value.toLowerCase().trim();
@@ -151,18 +151,32 @@ async function fetchData() {
 }
 
 function updateKpis(stats) {
-  document.getElementById('stat-total-submissions').textContent = stats.total || 0;
-  document.getElementById('stat-q1-yes-count').textContent = stats.q1?.yes || 0;
-  document.getElementById('stat-q1-avg-score').textContent = stats.q1?.avgScore ? `${stats.q1.avgScore} / 5` : '0.0';
-  document.getElementById('stat-contact-shared').textContent = stats.contactCount || 0;
+  const total = stats.total || 0;
+  document.getElementById('stat-total-submissions').textContent = total;
+
+  // Q1 Zero Rash rate
+  const q1Zero = (stats.questions?.q1 && stats.questions.q1['Bilkul nahi (Zero irritation)']) || 0;
+  const q1Rate = total > 0 ? Math.round((q1Zero / total) * 100) : 0;
+  document.getElementById('stat-zero-rash-rate').textContent = `${q1Rate}%`;
+
+  // Q7 Zero Leak rate
+  const q7Zero = (stats.questions?.q7 && stats.questions.q7['Zero leakage']) || 0;
+  const q7Rate = total > 0 ? Math.round((q7Zero / total) * 100) : 0;
+  document.getElementById('stat-zero-leak-rate').textContent = `${q7Rate}%`;
+
+  // Q8 Better Experience rate
+  const q8Better = (stats.questions?.q8 && stats.questions.q8['Bohot behtar (No rash + fresh feeling)']) || 0;
+  const q8Rate = total > 0 ? Math.round((q8Better / total) * 100) : 0;
+  document.getElementById('stat-better-exp-rate').textContent = `${q8Rate}%`;
 
   // Update tab counter badges
-  document.getElementById('count-all').textContent = stats.total || 0;
-  document.getElementById('count-q1').textContent = stats.questionResponseCounts?.q1 || 0;
-  document.getElementById('count-q2').textContent = stats.questionResponseCounts?.q2 || 0;
-  document.getElementById('count-q3').textContent = stats.questionResponseCounts?.q3 || 0;
-  document.getElementById('count-q4').textContent = stats.questionResponseCounts?.q4 || 0;
-  document.getElementById('count-q5').textContent = stats.questionResponseCounts?.q5 || 0;
+  document.getElementById('count-all').textContent = total;
+  for (let i = 1; i <= 8; i++) {
+    const countEl = document.getElementById(`count-q${i}`);
+    if (countEl) {
+      countEl.textContent = stats.questionCounts?.[`q${i}`] || total;
+    }
+  }
 }
 
 function switchTab(tabName) {
@@ -183,27 +197,42 @@ function renderAllViews(query = '') {
       return (
         (item.name && item.name.toLowerCase().includes(query)) ||
         (item.email && item.email.toLowerCase().includes(query)) ||
-        (item.phone && item.phone.toLowerCase().includes(query)) ||
-        (item.q2_flaws && item.q2_flaws.toLowerCase().includes(query)) ||
-        (item.q3_market_gap && item.q3_market_gap.toLowerCase().includes(query)) ||
-        (item.q4_alternate && item.q4_alternate.toLowerCase().includes(query)) ||
-        (item.q5_other_pain && item.q5_other_pain.toLowerCase().includes(query)) ||
-        (item.q1_relief && item.q1_relief.toLowerCase().includes(query))
+        (item.q1_rashes && item.q1_rashes.toLowerCase().includes(query)) ||
+        (item.q2_stinging && item.q2_stinging.toLowerCase().includes(query)) ||
+        (item.q3_dampness && item.q3_dampness.toLowerCase().includes(query)) ||
+        (item.q4_skin_texture && item.q4_skin_texture.toLowerCase().includes(query)) ||
+        (item.q5_odor_control && item.q5_odor_control.toLowerCase().includes(query)) ||
+        (item.q6_absorption && item.q6_absorption.toLowerCase().includes(query)) ||
+        (item.q7_leakage && item.q7_leakage.toLowerCase().includes(query)) ||
+        (item.q8_overall_experience && item.q8_overall_experience.toLowerCase().includes(query))
       );
     });
   }
 
   renderAllSubmissionsTab(filtered);
-  renderQ1Tab(filtered);
-  renderQ2Tab(filtered);
-  renderQ3Tab(filtered);
-  renderQ4Tab(filtered);
-  renderQ5Tab(filtered);
+  for (let i = 1; i <= 8; i++) {
+    renderQuestionTab(i, filtered);
+  }
 
   if (window.feather) feather.replace();
 }
 
-// Render ALL tab
+function getBadgeClass(val) {
+  if (!val) return 'tag-yellow';
+  const v = val.toLowerCase();
+  if (v.includes('bilkul nahi') || v.includes('zero') || v.includes('dry') || v.includes('safe') || v.includes('100%') || v.includes('turant') || v.includes('bohot behtar')) {
+    return 'tag-green';
+  }
+  if (v.includes('kam') || v.includes('hadd tak') || v.includes('normal')) {
+    return 'tag-blue';
+  }
+  if (v.includes('moderate') || v.includes('light flow') || v.includes('thoda') || v.includes('thodi') || v.includes('same')) {
+    return 'tag-yellow';
+  }
+  return 'tag-red';
+}
+
+// Render ALL Submissions Tab
 function renderAllSubmissionsTab(list) {
   const container = document.getElementById('all-submissions-list');
   if (list.length === 0) {
@@ -218,17 +247,8 @@ function renderAllSubmissionsTab(list) {
       timeZone: 'Asia/Kolkata'
     });
 
-    let q1Display = '<span style="color: #94a3b8;">Not answered</span>';
-    if (sub.q1_relief === 'yes') {
-      q1Display = `<span style="color: #059669; font-weight: 700;">👍 Yes, Relief milta hai</span> ${
-        sub.q1_level ? `<span style="background: #ffe4e6; color: #e11d48; padding: 2px 7px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; margin-left: 6px;">Level ${sub.q1_level} / 5</span>` : ''
-      }`;
-    } else if (sub.q1_relief === 'no') {
-      q1Display = '<span style="color: #dc2626; font-weight: 700;">👎 No, Relief nahi milta</span>';
-    }
-
-    const displayName = sub.email || sub.name || 'Anonymous User';
-    const initial = (displayName[0] || 'U').toUpperCase();
+    const displayName = sub.email || sub.name || 'Verified Respondent';
+    const initial = (displayName[0] || 'V').toUpperCase();
 
     return `
       <div class="survey-card" style="margin-bottom: 14px;">
@@ -245,38 +265,38 @@ function renderAllSubmissionsTab(list) {
           </button>
         </div>
 
-        <div style="display: grid; gap: 8px; margin-top: 10px; font-size: 0.88rem;">
-          <div>
-            <strong style="color: #64748b; font-size: 0.78rem;">Ans1 (Heating Pad Relief):</strong>
-            <div style="margin-top: 2px;">${q1Display}</div>
+        <div style="display: grid; gap: 6px; margin-top: 10px;">
+          <div class="ans-row">
+            <span class="ans-label">Q1 (Rashes/Itch):</span>
+            <span class="ans-val-pill ${getBadgeClass(sub.q1_rashes)}">${escapeHTML(sub.q1_rashes || 'N/A')}</span>
           </div>
-
-          <div>
-            <strong style="color: #64748b; font-size: 0.78rem;">Ans2 (Flaws / Problems):</strong>
-            <div class="${sub.q2_flaws ? 'qn-answer-text' : ''}" style="margin-top: 2px;">
-              ${sub.q2_flaws ? escapeHTML(sub.q2_flaws) : '<span style="color: #94a3b8;">No response</span>'}
-            </div>
+          <div class="ans-row">
+            <span class="ans-label">Q2 (Stinging/Jalan):</span>
+            <span class="ans-val-pill ${getBadgeClass(sub.q2_stinging)}">${escapeHTML(sub.q2_stinging || 'N/A')}</span>
           </div>
-
-          <div>
-            <strong style="color: #64748b; font-size: 0.78rem;">Ans3 (Market Gap / Wishlist):</strong>
-            <div class="${sub.q3_market_gap ? 'qn-answer-text' : ''}" style="margin-top: 2px; border-left-color: #6366f1;">
-              ${sub.q3_market_gap ? escapeHTML(sub.q3_market_gap) : '<span style="color: #94a3b8;">No response</span>'}
-            </div>
+          <div class="ans-row">
+            <span class="ans-label">Q3 (Dampness/Sweat):</span>
+            <span class="ans-val-pill ${getBadgeClass(sub.q3_dampness)}">${escapeHTML(sub.q3_dampness || 'N/A')}</span>
           </div>
-
-          <div>
-            <strong style="color: #64748b; font-size: 0.78rem;">Ans4 (Alternate Solution & Why):</strong>
-            <div class="${sub.q4_alternate ? 'qn-answer-text' : ''}" style="margin-top: 2px; border-left-color: #10b981;">
-              ${sub.q4_alternate ? escapeHTML(sub.q4_alternate) : '<span style="color: #94a3b8;">No response</span>'}
-            </div>
+          <div class="ans-row">
+            <span class="ans-label">Q4 (Vulvar Skin):</span>
+            <span class="ans-val-pill ${getBadgeClass(sub.q4_skin_texture)}">${escapeHTML(sub.q4_skin_texture || 'N/A')}</span>
           </div>
-
-          <div>
-            <strong style="color: #64748b; font-size: 0.78rem;">Ans5 (Other Pain Areas & Heating Pad Efficacy):</strong>
-            <div class="${sub.q5_other_pain ? 'qn-answer-text' : ''}" style="margin-top: 2px; border-left-color: #f59e0b;">
-              ${sub.q5_other_pain ? escapeHTML(sub.q5_other_pain) : '<span style="color: #94a3b8;">No response</span>'}
-            </div>
+          <div class="ans-row">
+            <span class="ans-label">Q5 (Odor Control):</span>
+            <span class="ans-val-pill ${getBadgeClass(sub.q5_odor_control)}">${escapeHTML(sub.q5_odor_control || 'N/A')}</span>
+          </div>
+          <div class="ans-row">
+            <span class="ans-label">Q6 (Absorption Speed):</span>
+            <span class="ans-val-pill ${getBadgeClass(sub.q6_absorption)}">${escapeHTML(sub.q6_absorption || 'N/A')}</span>
+          </div>
+          <div class="ans-row">
+            <span class="ans-label">Q7 (Side Leakage):</span>
+            <span class="ans-val-pill ${getBadgeClass(sub.q7_leakage)}">${escapeHTML(sub.q7_leakage || 'N/A')}</span>
+          </div>
+          <div class="ans-row">
+            <span class="ans-label">Q8 (Overall VYVIA):</span>
+            <span class="ans-val-pill ${getBadgeClass(sub.q8_overall_experience)}">${escapeHTML(sub.q8_overall_experience || 'N/A')}</span>
           </div>
         </div>
 
@@ -290,40 +310,34 @@ function renderAllSubmissionsTab(list) {
   }).join('');
 }
 
-// Render QN1 tab
-function renderQ1Tab(list) {
-  const container = document.getElementById('q1-submissions-list');
-  const q1List = list.filter(s => s.q1_relief);
+const QUESTION_KEYS = {
+  1: 'q1_rashes',
+  2: 'q2_stinging',
+  3: 'q3_dampness',
+  4: 'q4_skin_texture',
+  5: 'q5_odor_control',
+  6: 'q6_absorption',
+  7: 'q7_leakage',
+  8: 'q8_overall_experience'
+};
 
-  if (q1List.length === 0) {
-    container.innerHTML = '<div class="empty-box">No responses for QN1 yet.</div>';
+function renderQuestionTab(qnNum, list) {
+  const container = document.getElementById(`q${qnNum}-submissions-list`);
+  if (!container) return;
+
+  const key = QUESTION_KEYS[qnNum];
+  const qList = list.filter(s => s[key]);
+
+  if (qList.length === 0) {
+    container.innerHTML = `<div class="empty-box">No responses for Q${qnNum} yet.</div>`;
     return;
   }
 
-  container.innerHTML = q1List.map(sub => {
+  container.innerHTML = qList.map(sub => {
     const formattedDate = new Date(sub.createdAt).toLocaleDateString('en-IN');
-    const displayName = sub.email || sub.name || 'Anonymous User';
-    const initial = (displayName[0] || 'U').toUpperCase();
-
-    let ratingBadge = '';
-    if (sub.q1_relief === 'yes') {
-      ratingBadge = `
-        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; padding: 8px 12px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px;">
-          <span>👍</span>
-          <div>
-            <strong style="color: #065f46; font-size: 0.88rem;">Yes, Relief milta hai</strong>
-            ${sub.q1_level ? `<div style="color: #e11d48; font-weight: 700; font-size: 0.82rem;">Relief Level: ${sub.q1_level} out of 5</div>` : ''}
-          </div>
-        </div>
-      `;
-    } else {
-      ratingBadge = `
-        <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 8px 12px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px;">
-          <span>👎</span>
-          <strong style="color: #991b1b; font-size: 0.88rem;">No, Relief nahi milta</strong>
-        </div>
-      `;
-    }
+    const displayName = sub.email || sub.name || 'Verified Respondent';
+    const initial = (displayName[0] || 'V').toUpperCase();
+    const ansVal = sub[key];
 
     return `
       <div class="qn-card">
@@ -335,140 +349,118 @@ function renderQ1Tab(list) {
           <span class="sub-date">${formattedDate}</span>
         </div>
         <div style="margin-top: 6px;">
-          ${ratingBadge}
+          <span class="ans-val-pill ${getBadgeClass(ansVal)}" style="font-size: 0.92rem; padding: 4px 10px;">
+            ${escapeHTML(ansVal)}
+          </span>
         </div>
       </div>
     `;
   }).join('');
 }
 
-// Render QN2 tab
-function renderQ2Tab(list) {
-  const container = document.getElementById('q2-submissions-list');
-  const q2List = list.filter(s => s.q2_flaws);
-
-  if (q2List.length === 0) {
-    container.innerHTML = '<div class="empty-box">No written feedback for QN2 yet.</div>';
-    return;
-  }
-
-  container.innerHTML = q2List.map(sub => renderTextResponseCard(sub, sub.q2_flaws, '#e11d48')).join('');
-}
-
-// Render QN3 tab
-function renderQ3Tab(list) {
-  const container = document.getElementById('q3-submissions-list');
-  const q3List = list.filter(s => s.q3_market_gap);
-
-  if (q3List.length === 0) {
-    container.innerHTML = '<div class="empty-box">No written feedback for QN3 yet.</div>';
-    return;
-  }
-
-  container.innerHTML = q3List.map(sub => renderTextResponseCard(sub, sub.q3_market_gap, '#6366f1')).join('');
-}
-
-// Render QN4 tab
-function renderQ4Tab(list) {
-  const container = document.getElementById('q4-submissions-list');
-  const q4List = list.filter(s => s.q4_alternate);
-
-  if (q4List.length === 0) {
-    container.innerHTML = '<div class="empty-box">No written feedback for QN4 yet.</div>';
-    return;
-  }
-
-  container.innerHTML = q4List.map(sub => renderTextResponseCard(sub, sub.q4_alternate, '#10b981')).join('');
-}
-
-// Render QN5 tab
-function renderQ5Tab(list) {
-  const container = document.getElementById('q5-submissions-list');
-  const q5List = list.filter(s => s.q5_other_pain);
-
-  if (q5List.length === 0) {
-    container.innerHTML = '<div class="empty-box">No written feedback for QN5 yet.</div>';
-    return;
-  }
-
-  container.innerHTML = q5List.map(sub => renderTextResponseCard(sub, sub.q5_other_pain, '#f59e0b')).join('');
-}
-
-function renderTextResponseCard(sub, textContent, accentColor) {
-  const formattedDate = new Date(sub.createdAt).toLocaleDateString('en-IN');
-  const displayName = sub.email || sub.name || 'Anonymous User';
-  const initial = (displayName[0] || 'U').toUpperCase();
-
-  return `
-    <div class="qn-card">
-      <div class="qn-card-top">
-        <div class="user-meta">
-          <div class="user-avatar">${initial}</div>
-          <div class="user-name">${escapeHTML(displayName)}</div>
-        </div>
-        <span class="sub-date">${formattedDate}</span>
-      </div>
-      <div class="qn-answer-text" style="border-left-color: ${accentColor};">
-        ${escapeHTML(textContent)}
-      </div>
-    </div>
-  `;
-}
-
-// Render Chart for Q1 Ratings
-function renderQ1Chart(stats) {
-  const canvas = document.getElementById('q1RatingChart');
-  if (!canvas) return;
-
-  const ratings = stats.q1?.ratings || { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
-  const noCount = stats.q1?.no || 0;
-
-  const labels = ['L1 (Mild)', 'L2 (Slight)', 'L3 (Moderate)', 'L4 (Good)', 'L5 (Complete)', 'No Relief'];
-  const data = [
-    ratings['1'] || 0,
-    ratings['2'] || 0,
-    ratings['3'] || 0,
-    ratings['4'] || 0,
-    ratings['5'] || 0,
-    noCount
+// Render Chart.js for all questions
+function renderAllCharts(stats) {
+  const qConfigs = [
+    {
+      num: 1,
+      key: 'q1',
+      labels: ['Bilkul nahi (Zero irritation)', 'Bohat kam', 'Moderate (Kabhi kabhi)', 'Severe (Kaafi zyada rashes)'],
+      shortLabels: ['Zero Irritation', 'Minimal', 'Moderate', 'Severe Rashes'],
+      colors: ['#10b981', '#0ea5e9', '#f59e0b', '#ef4444']
+    },
+    {
+      num: 2,
+      key: 'q2',
+      labels: ['Bilkul nahi', 'Sirf light flow ke time', 'Pehle din se continuous'],
+      shortLabels: ['No Stinging', 'Light Flow Only', 'Continuous'],
+      colors: ['#10b981', '#f59e0b', '#ef4444']
+    },
+    {
+      num: 3,
+      key: 'q3',
+      labels: ['Dry and fresh laga', 'Thoda sa gila-pan tha', 'Bohot zyada pasina/dampness tha'],
+      shortLabels: ['Dry & Fresh', 'Mild Dampness', 'Heavy Sweat'],
+      colors: ['#10b981', '#f59e0b', '#ef4444']
+    },
+    {
+      num: 4,
+      key: 'q4',
+      labels: ['Skin normal aur safe rahi', 'Thodi sticky lagi', 'Skin chhil gayi / redness aayi'],
+      shortLabels: ['Safe & Normal', 'Slightly Sticky', 'Redness / Chhil gayi'],
+      colors: ['#10b981', '#f59e0b', '#ef4444']
+    },
+    {
+      num: 5,
+      key: 'q5',
+      labels: ['100% koi smell nahi aayi', 'Kaafi hadd tak control thi', 'Regular pads jaisi hi smell thi'],
+      shortLabels: ['100% Odorless', 'Well Controlled', 'Like Regular Pads'],
+      colors: ['#10b981', '#0ea5e9', '#f59e0b']
+    },
+    {
+      num: 6,
+      key: 'q6',
+      labels: ['Turant absorb ho gaya (Surface dry raha)', 'Normal time liya', 'Upar hi thehra raha (Slow absorption)'],
+      shortLabels: ['Instant Absorption', 'Normal Time', 'Slow / Pooled'],
+      colors: ['#10b981', '#0ea5e9', '#ef4444']
+    },
+    {
+      num: 7,
+      key: 'q7',
+      labels: ['Zero leakage', 'Heavy flow ke din thoda leak hua', 'Kaafi leakage hui'],
+      shortLabels: ['Zero Leakage', 'Slight on Heavy Days', 'Frequent Leakage'],
+      colors: ['#10b981', '#f59e0b', '#ef4444']
+    },
+    {
+      num: 8,
+      key: 'q8',
+      labels: ['Bohot behtar (No rash + fresh feeling)', 'Lagbhag same', 'Uncomfortable laga'],
+      shortLabels: ['Much Better (Fresh)', 'About The Same', 'Uncomfortable'],
+      colors: ['#10b981', '#f59e0b', '#ef4444']
+    }
   ];
 
-  if (q1ChartInstance) {
-    q1ChartInstance.destroy();
-  }
+  qConfigs.forEach(cfg => {
+    const canvas = document.getElementById(`chart-q${cfg.num}`);
+    if (!canvas) return;
 
-  const ctx = canvas.getContext('2d');
-  q1ChartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Responses',
-        data: data,
-        backgroundColor: [
-          '#fda4af',
-          '#fb7185',
-          '#f43f5e',
-          '#e11d48',
-          '#be123c',
-          '#94a3b8'
-        ],
-        borderRadius: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
+    const counts = stats.questions?.[cfg.key] || {};
+    const dataValues = cfg.labels.map(l => counts[l] || 0);
+
+    if (charts[cfg.num]) {
+      charts[cfg.num].destroy();
+    }
+
+    const ctx = canvas.getContext('2d');
+    charts[cfg.num] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: cfg.shortLabels,
+        datasets: [{
+          label: 'Responses',
+          data: dataValues,
+          backgroundColor: cfg.colors,
+          borderRadius: 6
+        }]
       },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { stepSize: 1, precision: 0 }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (items) => cfg.labels[items[0].dataIndex]
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1, precision: 0 }
+          }
         }
       }
-    }
+    });
   });
 }
 

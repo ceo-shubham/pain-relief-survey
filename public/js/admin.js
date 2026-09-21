@@ -2,8 +2,73 @@ let allSubmissions = [];
 let currentTab = 'all';
 let q1ChartInstance = null;
 
+const AUTH_KEY = 'survey_admin_token';
+
 document.addEventListener('DOMContentLoaded', () => {
-  initDashboard();
+  const loginModal = document.getElementById('login-modal');
+  const adminMain = document.getElementById('admin-main-container');
+  const loginForm = document.getElementById('admin-login-form');
+  const passInput = document.getElementById('admin-pass-input');
+  const loginErrorMsg = document.getElementById('login-error-msg');
+  const btnLogout = document.getElementById('btn-logout');
+  const btnDownloadCsv = document.getElementById('btn-download-csv');
+
+  // Check existing session
+  const existingToken = sessionStorage.getItem(AUTH_KEY);
+  if (existingToken) {
+    showDashboard();
+    fetchData();
+  } else {
+    showLogin();
+  }
+
+  // Handle Login Submit
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginErrorMsg.style.display = 'none';
+
+    const enteredPassword = passInput.value.trim();
+    if (!enteredPassword) return;
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: enteredPassword })
+      });
+
+      const data = await res.json();
+      if (data.success && data.token) {
+        sessionStorage.setItem(AUTH_KEY, data.token);
+        passInput.value = '';
+        showDashboard();
+        fetchData();
+      } else {
+        loginErrorMsg.style.display = 'block';
+        passInput.focus();
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      loginErrorMsg.textContent = 'Server connection error. Try again.';
+      loginErrorMsg.style.display = 'block';
+    }
+  });
+
+  // Handle Logout
+  btnLogout.addEventListener('click', () => {
+    sessionStorage.removeItem(AUTH_KEY);
+    showLogin();
+  });
+
+  // Handle CSV Download
+  btnDownloadCsv.addEventListener('click', () => {
+    const token = sessionStorage.getItem(AUTH_KEY);
+    if (!token) {
+      showLogin();
+      return;
+    }
+    window.location.href = `/api/export?auth=${encodeURIComponent(token)}`;
+  });
 
   // Tab switching
   const tabs = document.querySelectorAll('.tab-btn');
@@ -29,16 +94,39 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-async function initDashboard() {
-  await fetchData();
+function showLogin() {
+  document.getElementById('login-modal').style.display = 'flex';
+  document.getElementById('admin-main-container').style.display = 'none';
+  if (window.feather) feather.replace();
+}
+
+function showDashboard() {
+  document.getElementById('login-modal').style.display = 'none';
+  document.getElementById('admin-main-container').style.display = 'block';
+  if (window.feather) feather.replace();
+}
+
+function getAuthHeaders() {
+  const token = sessionStorage.getItem(AUTH_KEY) || '';
+  return {
+    'Authorization': `Bearer ${token}`,
+    'x-admin-token': token
+  };
 }
 
 async function fetchData() {
   try {
+    const headers = getAuthHeaders();
     const [subRes, statsRes] = await Promise.all([
-      fetch('/api/submissions'),
-      fetch('/api/stats')
+      fetch('/api/submissions', { headers }),
+      fetch('/api/stats', { headers })
     ]);
+
+    if (subRes.status === 401 || statsRes.status === 401) {
+      sessionStorage.removeItem(AUTH_KEY);
+      showLogin();
+      return;
+    }
 
     const subData = await subRes.json();
     const statsData = await statsRes.json();
@@ -55,7 +143,7 @@ async function fetchData() {
     const searchQuery = document.getElementById('search-box').value.toLowerCase().trim();
     renderAllViews(searchQuery);
 
-    document.getElementById('last-updated-text').textContent = `Updated: ${new Date().toLocaleTimeString()}`;
+    document.getElementById('last-updated-text').textContent = `Updated: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
     if (window.feather) feather.replace();
   } catch (err) {
     console.error('Error fetching dashboard data:', err);
@@ -119,7 +207,7 @@ function renderAllViews(query = '') {
 function renderAllSubmissionsTab(list) {
   const container = document.getElementById('all-submissions-list');
   if (list.length === 0) {
-    container.innerHTML = '<div class="empty-box">No submissions found.</div>';
+    container.innerHTML = '<div class="empty-box">Abhi tak koi submission record nahi hua hai.</div>';
     return;
   }
 
@@ -133,14 +221,14 @@ function renderAllSubmissionsTab(list) {
     let q1Display = '<span style="color: #94a3b8;">Not answered</span>';
     if (sub.q1_relief === 'yes') {
       q1Display = `<span style="color: #059669; font-weight: 700;">👍 Yes, Relief milta hai</span> ${
-        sub.q1_level ? `<span style="background: #ffe4e6; color: #e11d48; padding: 2px 8px; border-radius: 6px; font-weight: 700; margin-left: 6px;">Level ${sub.q1_level} / 5</span>` : ''
+        sub.q1_level ? `<span style="background: #ffe4e6; color: #e11d48; padding: 2px 7px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; margin-left: 6px;">Level ${sub.q1_level} / 5</span>` : ''
       }`;
     } else if (sub.q1_relief === 'no') {
       q1Display = '<span style="color: #dc2626; font-weight: 700;">👎 No, Relief nahi milta</span>';
     }
 
     return `
-      <div class="survey-card" style="margin-bottom: 16px;">
+      <div class="survey-card" style="margin-bottom: 14px;">
         <div class="qn-card-top">
           <div class="user-meta">
             <div class="user-avatar">${(sub.name || 'A')[0].toUpperCase()}</div>
@@ -149,50 +237,50 @@ function renderAllSubmissionsTab(list) {
               <div class="sub-date">${formattedDate}</div>
             </div>
           </div>
-          <button class="btn-refresh" style="color: #ef4444; padding: 4px 10px; font-size: 0.8rem;" onclick="deleteSubmission('${sub.id}')">
-            <i data-feather="trash-2" style="width: 14px; height: 14px;"></i> Delete
+          <button class="btn-refresh" style="color: #ef4444; padding: 3px 8px; font-size: 0.76rem;" onclick="deleteSubmission('${sub.id}')">
+            <i data-feather="trash-2" style="width: 12px; height: 12px;"></i> Delete
           </button>
         </div>
 
-        <div style="display: grid; gap: 10px; margin-top: 12px; font-size: 0.92rem;">
+        <div style="display: grid; gap: 8px; margin-top: 10px; font-size: 0.88rem;">
           <div>
-            <strong style="color: #64748b; font-size: 0.82rem;">QN1 (Heating Pad Relief):</strong>
-            <div>${q1Display}</div>
+            <strong style="color: #64748b; font-size: 0.78rem;">Ans1 (Heating Pad Relief):</strong>
+            <div style="margin-top: 2px;">${q1Display}</div>
           </div>
 
           <div>
-            <strong style="color: #64748b; font-size: 0.82rem;">QN2 (Flaws / Problems):</strong>
-            <div class="${sub.q2_flaws ? 'qn-answer-text' : ''}" style="margin-top: 4px;">
+            <strong style="color: #64748b; font-size: 0.78rem;">Ans2 (Flaws / Problems):</strong>
+            <div class="${sub.q2_flaws ? 'qn-answer-text' : ''}" style="margin-top: 2px;">
               ${sub.q2_flaws ? escapeHTML(sub.q2_flaws) : '<span style="color: #94a3b8;">No response</span>'}
             </div>
           </div>
 
           <div>
-            <strong style="color: #64748b; font-size: 0.82rem;">QN3 (Missing Product / Market Gap):</strong>
-            <div class="${sub.q3_market_gap ? 'qn-answer-text' : ''}" style="margin-top: 4px; border-left-color: #6366f1;">
+            <strong style="color: #64748b; font-size: 0.78rem;">Ans3 (Market Gap / Wishlist):</strong>
+            <div class="${sub.q3_market_gap ? 'qn-answer-text' : ''}" style="margin-top: 2px; border-left-color: #6366f1;">
               ${sub.q3_market_gap ? escapeHTML(sub.q3_market_gap) : '<span style="color: #94a3b8;">No response</span>'}
             </div>
           </div>
 
           <div>
-            <strong style="color: #64748b; font-size: 0.82rem;">QN4 (Alternate Solution):</strong>
-            <div class="${sub.q4_alternate ? 'qn-answer-text' : ''}" style="margin-top: 4px; border-left-color: #10b981;">
+            <strong style="color: #64748b; font-size: 0.78rem;">Ans4 (Alternate Solution & Why):</strong>
+            <div class="${sub.q4_alternate ? 'qn-answer-text' : ''}" style="margin-top: 2px; border-left-color: #10b981;">
               ${sub.q4_alternate ? escapeHTML(sub.q4_alternate) : '<span style="color: #94a3b8;">No response</span>'}
             </div>
           </div>
 
           <div>
-            <strong style="color: #64748b; font-size: 0.82rem;">QN5 (Other Pain Areas):</strong>
-            <div class="${sub.q5_other_pain ? 'qn-answer-text' : ''}" style="margin-top: 4px; border-left-color: #f59e0b;">
+            <strong style="color: #64748b; font-size: 0.78rem;">Ans5 (Other Pain Areas & Heating Pad Efficacy):</strong>
+            <div class="${sub.q5_other_pain ? 'qn-answer-text' : ''}" style="margin-top: 2px; border-left-color: #f59e0b;">
               ${sub.q5_other_pain ? escapeHTML(sub.q5_other_pain) : '<span style="color: #94a3b8;">No response</span>'}
             </div>
           </div>
         </div>
 
         ${(sub.email || sub.phone) ? `
-          <div class="qn-contact-strip" style="margin-top: 14px; padding-top: 10px; border-top: 1px solid #f1f5f9;">
-            ${sub.email ? `<span class="contact-pill"><i data-feather="mail" style="width: 12px; height: 12px;"></i> ${escapeHTML(sub.email)}</span>` : ''}
-            ${sub.phone ? `<span class="contact-pill"><i data-feather="phone" style="width: 12px; height: 12px;"></i> ${escapeHTML(sub.phone)}</span>` : ''}
+          <div class="qn-contact-strip" style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #f1f5f9;">
+            ${sub.email ? `<span class="contact-pill"><i data-feather="mail" style="width: 11px; height: 11px;"></i> ${escapeHTML(sub.email)}</span>` : ''}
+            ${sub.phone ? `<span class="contact-pill"><i data-feather="phone" style="width: 11px; height: 11px;"></i> ${escapeHTML(sub.phone)}</span>` : ''}
           </div>
         ` : ''}
       </div>
@@ -215,19 +303,19 @@ function renderQ1Tab(list) {
     let ratingBadge = '';
     if (sub.q1_relief === 'yes') {
       ratingBadge = `
-        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; padding: 10px 14px; border-radius: 8px; display: inline-flex; align-items: center; gap: 10px;">
-          <span style="font-size: 1.1rem;">👍</span>
+        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; padding: 8px 12px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px;">
+          <span>👍</span>
           <div>
-            <strong style="color: #065f46;">Yes, Relief milta hai</strong>
-            ${sub.q1_level ? `<div style="color: #e11d48; font-weight: 700; font-size: 0.88rem;">Relief Level: ${sub.q1_level} out of 5</div>` : ''}
+            <strong style="color: #065f46; font-size: 0.88rem;">Yes, Relief milta hai</strong>
+            ${sub.q1_level ? `<div style="color: #e11d48; font-weight: 700; font-size: 0.82rem;">Relief Level: ${sub.q1_level} out of 5</div>` : ''}
           </div>
         </div>
       `;
     } else {
       ratingBadge = `
-        <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 10px 14px; border-radius: 8px; display: inline-flex; align-items: center; gap: 10px;">
-          <span style="font-size: 1.1rem;">👎</span>
-          <strong style="color: #991b1b;">No, Relief nahi milta</strong>
+        <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 8px 12px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px;">
+          <span>👎</span>
+          <strong style="color: #991b1b; font-size: 0.88rem;">No, Relief nahi milta</strong>
         </div>
       `;
     }
@@ -241,7 +329,7 @@ function renderQ1Tab(list) {
           </div>
           <span class="sub-date">${formattedDate}</span>
         </div>
-        <div style="margin-top: 8px;">
+        <div style="margin-top: 6px;">
           ${ratingBadge}
         </div>
         ${(sub.email || sub.phone) ? `
@@ -261,7 +349,7 @@ function renderQ2Tab(list) {
   const q2List = list.filter(s => s.q2_flaws);
 
   if (q2List.length === 0) {
-    container.innerHTML = '<div class="empty-box">No responses written for QN2 yet.</div>';
+    container.innerHTML = '<div class="empty-box">No written feedback for QN2 yet.</div>';
     return;
   }
 
@@ -274,7 +362,7 @@ function renderQ3Tab(list) {
   const q3List = list.filter(s => s.q3_market_gap);
 
   if (q3List.length === 0) {
-    container.innerHTML = '<div class="empty-box">No responses written for QN3 yet.</div>';
+    container.innerHTML = '<div class="empty-box">No written feedback for QN3 yet.</div>';
     return;
   }
 
@@ -287,7 +375,7 @@ function renderQ4Tab(list) {
   const q4List = list.filter(s => s.q4_alternate);
 
   if (q4List.length === 0) {
-    container.innerHTML = '<div class="empty-box">No responses written for QN4 yet.</div>';
+    container.innerHTML = '<div class="empty-box">No written feedback for QN4 yet.</div>';
     return;
   }
 
@@ -300,7 +388,7 @@ function renderQ5Tab(list) {
   const q5List = list.filter(s => s.q5_other_pain);
 
   if (q5List.length === 0) {
-    container.innerHTML = '<div class="empty-box">No responses written for QN5 yet.</div>';
+    container.innerHTML = '<div class="empty-box">No written feedback for QN5 yet.</div>';
     return;
   }
 
@@ -323,8 +411,8 @@ function renderTextResponseCard(sub, textContent, accentColor) {
       </div>
       ${(sub.email || sub.phone) ? `
         <div class="qn-contact-strip">
-          ${sub.email ? `<span class="contact-pill"><i data-feather="mail" style="width: 12px; height: 12px;"></i> ${escapeHTML(sub.email)}</span>` : ''}
-          ${sub.phone ? `<span class="contact-pill"><i data-feather="phone" style="width: 12px; height: 12px;"></i> ${escapeHTML(sub.phone)}</span>` : ''}
+          ${sub.email ? `<span class="contact-pill"><i data-feather="mail" style="width: 11px; height: 11px;"></i> ${escapeHTML(sub.email)}</span>` : ''}
+          ${sub.phone ? `<span class="contact-pill"><i data-feather="phone" style="width: 11px; height: 11px;"></i> ${escapeHTML(sub.phone)}</span>` : ''}
         </div>
       ` : ''}
     </div>
@@ -339,7 +427,7 @@ function renderQ1Chart(stats) {
   const ratings = stats.q1?.ratings || { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
   const noCount = stats.q1?.no || 0;
 
-  const labels = ['Level 1 (Mild)', 'Level 2 (Slight)', 'Level 3 (Moderate)', 'Level 4 (Good)', 'Level 5 (Complete)', 'No Relief'];
+  const labels = ['L1 (Mild)', 'L2 (Slight)', 'L3 (Moderate)', 'L4 (Good)', 'L5 (Complete)', 'No Relief'];
   const data = [
     ratings['1'] || 0,
     ratings['2'] || 0,
@@ -359,7 +447,7 @@ function renderQ1Chart(stats) {
     data: {
       labels: labels,
       datasets: [{
-        label: 'Number of Responses',
+        label: 'Responses',
         data: data,
         backgroundColor: [
           '#fda4af',
@@ -381,7 +469,7 @@ function renderQ1Chart(stats) {
       scales: {
         y: {
           beginAtZero: true,
-          ticks: { stepSize: 1 }
+          ticks: { stepSize: 1, precision: 0 }
         }
       }
     }
@@ -393,7 +481,10 @@ async function deleteSubmission(id) {
   if (!confirm('Are you sure you want to delete this submission?')) return;
 
   try {
-    const res = await fetch(`/api/submissions/${id}`, { method: 'DELETE' });
+    const res = await fetch(`/api/submissions/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
     const data = await res.json();
     if (data.success) {
       fetchData();

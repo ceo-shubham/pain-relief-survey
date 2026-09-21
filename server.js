@@ -7,6 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_DIR = path.join(__dirname, 'data');
 const DB_FILE = path.join(DATA_DIR, 'submissions.json');
+const ADMIN_PASSWORD = 'Shubham@1003A';
 
 // Ensure data folder and file exists
 if (!fs.existsSync(DATA_DIR)) {
@@ -42,6 +43,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Auth middleware for protected admin APIs
+function requireAdmin(req, res, next) {
+  const authHeader = req.headers['authorization'] || '';
+  const customHeader = req.headers['x-admin-token'] || '';
+  const queryAuth = req.query.auth || '';
+
+  const token = authHeader.replace(/^Bearer\s+/i, '') || customHeader || queryAuth;
+  if (token === ADMIN_PASSWORD) {
+    return next();
+  }
+  return res.status(401).json({ success: false, message: 'Unauthorized: Password required' });
+}
+
 // Routes for main pages
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -51,18 +65,28 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// API: Submit Survey
+// API: Login
+app.post('/api/login', (req, res) => {
+  const { password } = req.body;
+  if (password === ADMIN_PASSWORD) {
+    return res.json({ success: true, token: ADMIN_PASSWORD });
+  } else {
+    return res.status(401).json({ success: false, message: 'Incorrect password' });
+  }
+});
+
+// API: Submit Survey (Public)
 app.post('/api/submit', (req, res) => {
   const {
-    q1_relief,      // "yes" | "no" | ""
-    q1_level,       // 1-5 (number or null)
-    q2_flaws,       // string
-    q3_market_gap,  // string
-    q4_alternate,   // string
-    q5_other_pain,  // string
-    name,           // string (optional)
-    email,          // string (optional)
-    phone           // string (optional)
+    q1_relief,
+    q1_level,
+    q2_flaws,
+    q3_market_gap,
+    q4_alternate,
+    q5_other_pain,
+    name,
+    email,
+    phone
   } = req.body;
 
   const newEntry = {
@@ -80,7 +104,7 @@ app.post('/api/submit', (req, res) => {
   };
 
   const submissions = readSubmissions();
-  submissions.unshift(newEntry); // Newest first
+  submissions.unshift(newEntry);
   const saved = saveSubmissions(submissions);
 
   if (saved) {
@@ -97,8 +121,8 @@ app.post('/api/submit', (req, res) => {
   }
 });
 
-// API: Get All Submissions (with optional search query)
-app.get('/api/submissions', (req, res) => {
+// API: Get All Submissions (Protected)
+app.get('/api/submissions', requireAdmin, (req, res) => {
   const search = (req.query.search || '').toLowerCase().trim();
   let submissions = readSubmissions();
 
@@ -123,8 +147,8 @@ app.get('/api/submissions', (req, res) => {
   });
 });
 
-// API: Aggregated Statistics
-app.get('/api/stats', (req, res) => {
+// API: Aggregated Statistics (Protected)
+app.get('/api/stats', requireAdmin, (req, res) => {
   const submissions = readSubmissions();
   const total = submissions.length;
 
@@ -182,8 +206,8 @@ app.get('/api/stats', (req, res) => {
   });
 });
 
-// API: Delete Submission
-app.delete('/api/submissions/:id', (req, res) => {
+// API: Delete Submission (Protected)
+app.delete('/api/submissions/:id', requireAdmin, (req, res) => {
   const { id } = req.params;
   let submissions = readSubmissions();
   const initialLength = submissions.length;
@@ -197,22 +221,21 @@ app.delete('/api/submissions/:id', (req, res) => {
   res.json({ success: true, message: 'Submission deleted successfully' });
 });
 
-// API: Export CSV
-app.get('/api/export', (req, res) => {
+// API: Export CSV (Protected)
+app.get('/api/export', requireAdmin, (req, res) => {
   const submissions = readSubmissions();
 
   const headers = [
-    'ID',
-    'Date & Time',
-    'Respondent Name',
+    'Person Name',
+    'Ans1 (Heating Pad Relief & Level)',
+    'Ans2 (Flaws & Drawbacks)',
+    'Ans3 (Market Gap / Missing Product)',
+    'Ans4 (Alternate Solution & Why)',
+    'Ans5 (Other Pain Areas & Efficacy)',
     'Email',
     'Phone/WhatsApp',
-    'QN1: Heating Pad Relief? (Yes/No)',
-    'QN1: Relief Level (1-5)',
-    'QN2: Heating Pad Flaws / Problems',
-    'QN3: Market Gap / Missing Product',
-    'QN4: Alternate Solution & Why',
-    'QN5: Other Pain Areas & Does Heating Pad Work'
+    'Date & Time',
+    'Submission ID'
   ];
 
   const escapeCSV = (val) => {
@@ -221,29 +244,35 @@ app.get('/api/export', (req, res) => {
     return `"${str}"`;
   };
 
+  const formatAns1 = (sub) => {
+    if (sub.q1_relief === 'yes') {
+      return sub.q1_level ? `Yes (Level ${sub.q1_level}/5)` : 'Yes (Relief Milta Hai)';
+    } else if (sub.q1_relief === 'no') {
+      return 'No (Relief Nahi Milta)';
+    }
+    return 'Not Answered';
+  };
+
   const rows = submissions.map(sub => [
-    escapeCSV(sub.id),
-    escapeCSV(new Date(sub.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })),
-    escapeCSV(sub.name),
-    escapeCSV(sub.email),
-    escapeCSV(sub.phone),
-    escapeCSV(sub.q1_relief ? (sub.q1_relief.toUpperCase()) : 'Not Answered'),
-    escapeCSV(sub.q1_level || '-'),
+    escapeCSV(sub.name || 'Anonymous'),
+    escapeCSV(formatAns1(sub)),
     escapeCSV(sub.q2_flaws || '-'),
     escapeCSV(sub.q3_market_gap || '-'),
     escapeCSV(sub.q4_alternate || '-'),
-    escapeCSV(sub.q5_other_pain || '-')
+    escapeCSV(sub.q5_other_pain || '-'),
+    escapeCSV(sub.email || '-'),
+    escapeCSV(sub.phone || '-'),
+    escapeCSV(new Date(sub.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })),
+    escapeCSV(sub.id)
   ].join(','));
 
   const csvContent = [headers.join(','), ...rows].join('\r\n');
 
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
   res.setHeader('Content-Disposition', 'attachment; filename="Pain_Relief_Survey_Responses.csv"');
-  res.send('\uFEFF' + csvContent); // Add UTF-8 BOM for perfect Excel compatibility
+  res.send('\uFEFF' + csvContent);
 });
 
 app.listen(PORT, () => {
   console.log(`🚀 Pain Relief Survey Server running at: http://localhost:${PORT}`);
-  console.log(`📋 Public Survey Form: http://localhost:${PORT}/`);
-  console.log(`📊 Admin Dashboard: http://localhost:${PORT}/admin`);
 });

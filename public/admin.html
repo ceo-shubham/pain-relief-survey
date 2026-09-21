@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Admin Dashboard - Pain Relief Survey</title>
   <link rel="stylesheet" href="/css/styles.css" />
   <script src="https://unpkg.com/feather-icons"></script>
@@ -10,7 +10,48 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body style="background: #f8fafc;">
-  <div class="admin-container">
+
+  <!-- Password Login Overlay Modal -->
+  <div id="login-modal" class="login-overlay" style="display: flex;">
+    <div class="login-box">
+      <div class="login-icon">
+        <i data-feather="lock" style="width: 28px; height: 28px;"></i>
+      </div>
+      <h2 style="font-size: 1.4rem; font-weight: 700; color: #0f172a; margin-bottom: 6px;">Admin Access</h2>
+      <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 20px;">
+        Survey data and insights dekhne ke liye admin password enter karein.
+      </p>
+
+      <form id="admin-login-form">
+        <div style="margin-bottom: 16px; text-align: left;">
+          <label for="admin-pass-input" style="font-size: 0.82rem; font-weight: 600; color: #334155; display: block; margin-bottom: 6px;">
+            Password
+          </label>
+          <div style="position: relative;">
+            <input
+              type="password"
+              id="admin-pass-input"
+              class="form-input"
+              placeholder="Enter admin password"
+              required
+              autofocus
+            />
+          </div>
+          <div id="login-error-msg" style="color: #e11d48; font-size: 0.82rem; margin-top: 6px; display: none;">
+            Incorrect password. Please try again.
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="btn-login-submit" style="padding: 12px 20px; font-size: 0.95rem;">
+          <i data-feather="log-in" style="width: 16px; height: 16px;"></i>
+          <span>Unlock Dashboard</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Dashboard Container (Hidden until logged in) -->
+  <div class="admin-container" id="admin-main-container" style="display: none;">
     
     <!-- Admin Top Header -->
     <div class="admin-header">
@@ -19,24 +60,28 @@
           <span class="badge-tag" style="margin-bottom: 0; background: #e0f2fe; color: #0369a1; border-color: #bae6fd;">
             Admin Portal
           </span>
-          <span style="font-size: 0.8rem; color: #64748b;" id="last-updated-text">Live Sync</span>
+          <span style="font-size: 0.78rem; color: #64748b;" id="last-updated-text">Live Sync</span>
         </div>
-        <h1 style="margin-top: 6px;">Survey Responses & Question Insights</h1>
-        <p>Question-wise submissions, respondent details, analytics & CSV export</p>
+        <h1 style="margin-top: 4px;">Survey Responses & Insights</h1>
+        <p>Question-wise submissions, respondent details, live charts & CSV export</p>
       </div>
       <div class="admin-actions">
         <a href="/" target="_blank" class="btn-refresh" style="text-decoration: none;">
-          <i data-feather="external-link" style="width: 15px; height: 15px;"></i>
-          <span>Open Survey</span>
+          <i data-feather="external-link" style="width: 14px; height: 14px;"></i>
+          <span>Survey</span>
         </a>
         <button id="btn-refresh-data" class="btn-refresh">
-          <i data-feather="refresh-cw" style="width: 15px; height: 15px;"></i>
+          <i data-feather="refresh-cw" style="width: 14px; height: 14px;"></i>
           <span>Refresh</span>
         </button>
-        <a href="/api/export" class="btn-export" download>
-          <i data-feather="download" style="width: 16px; height: 16px;"></i>
-          <span>Export CSV / Excel</span>
-        </a>
+        <button id="btn-download-csv" class="btn-export">
+          <i data-feather="download" style="width: 15px; height: 15px;"></i>
+          <span>Download .CSV</span>
+        </button>
+        <button id="btn-logout" class="btn-logout" title="Logout">
+          <i data-feather="log-out" style="width: 14px; height: 14px;"></i>
+          <span>Logout</span>
+        </button>
       </div>
     </div>
 
@@ -58,7 +103,7 @@
         </div>
         <div class="stat-info">
           <div class="stat-val" id="stat-q1-yes-count">0</div>
-          <div class="stat-label">Q1 Yes (Relief Milta Hai)</div>
+          <div class="stat-label">Q1 Yes (Relief)</div>
         </div>
       </div>
 
@@ -68,7 +113,7 @@
         </div>
         <div class="stat-info">
           <div class="stat-val" id="stat-q1-avg-score">0.0</div>
-          <div class="stat-label">Avg Relief Rating (1 to 5)</div>
+          <div class="stat-label">Avg Rating (1 to 5)</div>
         </div>
       </div>
 
@@ -78,7 +123,7 @@
         </div>
         <div class="stat-info">
           <div class="stat-val" id="stat-contact-shared">0</div>
-          <div class="stat-label">Contacts Provided</div>
+          <div class="stat-label">Contacts Shared</div>
         </div>
       </div>
     </div>
@@ -90,44 +135,44 @@
         type="text"
         id="search-box"
         class="search-input"
-        placeholder="Search answers, respondent name, email, phone number, keywords..."
+        placeholder="Search by respondent name, email, phone, or answer keyword..."
       />
     </div>
 
     <!-- Question Tabs Navigation -->
     <div class="tabs-nav" id="tabs-container">
       <button class="tab-btn active" data-tab="all">
-        <i data-feather="grid" style="width: 15px; height: 15px;"></i>
+        <i data-feather="grid" style="width: 14px; height: 14px;"></i>
         <span>All Submissions</span>
         <span class="tab-count" id="count-all">0</span>
       </button>
 
       <button class="tab-btn" data-tab="q1">
-        <i data-feather="activity" style="width: 15px; height: 15px;"></i>
-        <span>QN 1: Heating Pad Relief</span>
+        <i data-feather="activity" style="width: 14px; height: 14px;"></i>
+        <span>QN 1: Relief & Rating</span>
         <span class="tab-count" id="count-q1">0</span>
       </button>
 
       <button class="tab-btn" data-tab="q2">
-        <i data-feather="alert-circle" style="width: 15px; height: 15px;"></i>
-        <span>QN 2: Flaws / Drawbacks</span>
+        <i data-feather="alert-circle" style="width: 14px; height: 14px;"></i>
+        <span>QN 2: Flaws / Problems</span>
         <span class="tab-count" id="count-q2">0</span>
       </button>
 
       <button class="tab-btn" data-tab="q3">
-        <i data-feather="help-circle" style="width: 15px; height: 15px;"></i>
-        <span>QN 3: Market Gap / Desired</span>
+        <i data-feather="help-circle" style="width: 14px; height: 14px;"></i>
+        <span>QN 3: Market Wishlist</span>
         <span class="tab-count" id="count-q3">0</span>
       </button>
 
       <button class="tab-btn" data-tab="q4">
-        <i data-feather="repeat" style="width: 15px; height: 15px;"></i>
+        <i data-feather="repeat" style="width: 14px; height: 14px;"></i>
         <span>QN 4: Alternate Solutions</span>
         <span class="tab-count" id="count-q4">0</span>
       </button>
 
       <button class="tab-btn" data-tab="q5">
-        <i data-feather="target" style="width: 15px; height: 15px;"></i>
+        <i data-feather="target" style="width: 14px; height: 14px;"></i>
         <span>QN 5: Other Pain Areas</span>
         <span class="tab-count" id="count-q5">0</span>
       </button>
@@ -136,76 +181,76 @@
     <!-- Tab Contents Container -->
     <div id="tab-content-area">
 
-      <!-- ================= TAB: ALL SUBMISSIONS ================= -->
+      <!-- TAB: ALL SUBMISSIONS -->
       <div id="view-all" class="tab-view">
         <div id="all-submissions-list" class="qn-feed-list">
           <div class="empty-box">Loading submissions...</div>
         </div>
       </div>
 
-      <!-- ================= TAB: QN1 ================= -->
+      <!-- TAB: QN1 -->
       <div id="view-q1" class="tab-view" style="display: none;">
-        <div class="survey-card" style="margin-bottom: 20px;">
-          <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 6px;">
-            QN1: Heating pad se kya period pain mein relief milta hai? (If yes, 1 to 5 level tak kitna?)
+        <div class="survey-card" style="margin-bottom: 16px;">
+          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
+            QN1: Heating pad se kya period pain mein relief milta hai? (1 to 5 level)
           </h3>
-          <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 18px;">
+          <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
             Distribution of Yes/No responses and Relief Levels (1 = Mild to 5 = Complete relief)
           </p>
-          <div style="max-width: 600px; margin: 0 auto; height: 260px;">
+          <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="q1RatingChart"></canvas>
           </div>
         </div>
         <div id="q1-submissions-list" class="qn-feed-list"></div>
       </div>
 
-      <!-- ================= TAB: QN2 ================= -->
+      <!-- TAB: QN2 -->
       <div id="view-q2" class="tab-view" style="display: none;">
-        <div class="survey-card" style="margin-bottom: 20px;">
-          <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 4px;">
+        <div class="survey-card" style="margin-bottom: 16px;">
+          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 3px;">
             QN2: Aapke according heating pads ke koi flaws, drawbacks ya problems?
           </h3>
-          <p style="color: #64748b; font-size: 0.9rem;">
-            Feedback on heating pad issues, design flaws, and complaints
+          <p style="color: #64748b; font-size: 0.82rem;">
+            Heating pad issues, design complaints & drawbacks
           </p>
         </div>
         <div id="q2-submissions-list" class="qn-feed-list"></div>
       </div>
 
-      <!-- ================= TAB: QN3 ================= -->
+      <!-- TAB: QN3 -->
       <div id="view-q3" class="tab-view" style="display: none;">
-        <div class="survey-card" style="margin-bottom: 20px;">
-          <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 4px;">
+        <div class="survey-card" style="margin-bottom: 16px;">
+          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 3px;">
             QN3: Period pain related aisi cheez jo aapko lagta hai market mein honi chahiye but abhi nahi hai?
           </h3>
-          <p style="color: #64748b; font-size: 0.9rem;">
-            Market gaps, wishlist ideas, and dream products suggested by users
+          <p style="color: #64748b; font-size: 0.82rem;">
+            Market gaps, dream products, and wishlist ideas
           </p>
         </div>
         <div id="q3-submissions-list" class="qn-feed-list"></div>
       </div>
 
-      <!-- ================= TAB: QN4 ================= -->
+      <!-- TAB: QN4 -->
       <div id="view-q4" class="tab-view" style="display: none;">
-        <div class="survey-card" style="margin-bottom: 20px;">
-          <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 4px;">
+        <div class="survey-card" style="margin-bottom: 16px;">
+          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 3px;">
             QN4: Alternate solution for pain relief other than heating pad and why's that?
           </h3>
-          <p style="color: #64748b; font-size: 0.9rem;">
-            Alternative home remedies, medications, habits, or products used for relief
+          <p style="color: #64748b; font-size: 0.82rem;">
+            Alternative home remedies, medications, habits, or products
           </p>
         </div>
         <div id="q4-submissions-list" class="qn-feed-list"></div>
       </div>
 
-      <!-- ================= TAB: QN5 ================= -->
+      <!-- TAB: QN5 -->
       <div id="view-q5" class="tab-view" style="display: none;">
-        <div class="survey-card" style="margin-bottom: 20px;">
-          <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 4px;">
+        <div class="survey-card" style="margin-bottom: 16px;">
+          <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 3px;">
             QN5: Kya aap kisi aur tarah ka pain face karte hain? Pain area batayein aur kya heating pad usme kaam karta hai?
           </h3>
-          <p style="color: #64748b; font-size: 0.9rem;">
-            Other body pain areas (back, neck, joints) and heating pad effectiveness
+          <p style="color: #64748b; font-size: 0.82rem;">
+            Other body pain areas (back, neck, cramps) and heating pad effectiveness
           </p>
         </div>
         <div id="q5-submissions-list" class="qn-feed-list"></div>

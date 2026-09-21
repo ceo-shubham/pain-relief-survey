@@ -1,3 +1,5 @@
+const ADMIN_PASSWORD = 'Shubham@1003A';
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -27,9 +29,19 @@ export default {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-admin-token'
         }
       });
+    }
+
+    // Auth checker
+    function isAuthorized() {
+      const authHeader = request.headers.get('Authorization') || '';
+      const customHeader = request.headers.get('x-admin-token') || '';
+      const queryAuth = url.searchParams.get('auth') || '';
+
+      const token = authHeader.replace(/^Bearer\s+/i, '') || customHeader || queryAuth;
+      return token === ADMIN_PASSWORD;
     }
 
     // Handle CORS preflight
@@ -38,12 +50,26 @@ export default {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-admin-token'
         }
       });
     }
 
-    // API: Submit Survey
+    // API: Login
+    if (pathname === '/api/login' && request.method === 'POST') {
+      try {
+        const body = await request.json();
+        if (body.password === ADMIN_PASSWORD) {
+          return json({ success: true, token: ADMIN_PASSWORD });
+        } else {
+          return json({ success: false, message: 'Incorrect password' }, 401);
+        }
+      } catch (err) {
+        return json({ success: false, message: 'Invalid request' }, 400);
+      }
+    }
+
+    // API: Submit Survey (Public)
     if (pathname === '/api/submit' && request.method === 'POST') {
       try {
         const body = await request.json();
@@ -84,6 +110,13 @@ export default {
         }, 201);
       } catch (err) {
         return json({ success: false, message: err.message }, 500);
+      }
+    }
+
+    // Protected Admin Endpoints
+    if (pathname === '/api/submissions' || pathname === '/api/stats' || pathname.startsWith('/api/submissions/') || pathname === '/api/export') {
+      if (!isAuthorized()) {
+        return json({ success: false, message: 'Unauthorized: Password required' }, 401);
       }
     }
 
@@ -187,22 +220,21 @@ export default {
       return json({ success: true, message: 'Submission deleted' });
     }
 
-    // API: Export CSV
+    // API: Export CSV (Headers: Person Name, Ans1, Ans2, Ans3, Ans4, Ans5, Email, Phone, Date)
     if (pathname === '/api/export' && request.method === 'GET') {
       const submissions = await getSubmissions();
 
       const headers = [
-        'ID',
-        'Date & Time',
-        'Respondent Name',
+        'Person Name',
+        'Ans1 (Heating Pad Relief & Level)',
+        'Ans2 (Flaws & Drawbacks)',
+        'Ans3 (Market Gap / Missing Product)',
+        'Ans4 (Alternate Solution & Why)',
+        'Ans5 (Other Pain Areas & Efficacy)',
         'Email',
         'Phone/WhatsApp',
-        'QN1: Heating Pad Relief? (Yes/No)',
-        'QN1: Relief Level (1-5)',
-        'QN2: Heating Pad Flaws / Problems',
-        'QN3: Market Gap / Missing Product',
-        'QN4: Alternate Solution & Why',
-        'QN5: Other Pain Areas & Does Heating Pad Work'
+        'Date & Time',
+        'Submission ID'
       ];
 
       const escapeCSV = (val) => {
@@ -211,18 +243,26 @@ export default {
         return `"${str}"`;
       };
 
+      const formatAns1 = (sub) => {
+        if (sub.q1_relief === 'yes') {
+          return sub.q1_level ? `Yes (Level ${sub.q1_level}/5)` : 'Yes (Relief Milta Hai)';
+        } else if (sub.q1_relief === 'no') {
+          return 'No (Relief Nahi Milta)';
+        }
+        return 'Not Answered';
+      };
+
       const rows = submissions.map(sub => [
-        escapeCSV(sub.id),
-        escapeCSV(new Date(sub.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })),
-        escapeCSV(sub.name),
-        escapeCSV(sub.email),
-        escapeCSV(sub.phone),
-        escapeCSV(sub.q1_relief ? (sub.q1_relief.toUpperCase()) : 'Not Answered'),
-        escapeCSV(sub.q1_level || '-'),
+        escapeCSV(sub.name || 'Anonymous'),
+        escapeCSV(formatAns1(sub)),
         escapeCSV(sub.q2_flaws || '-'),
         escapeCSV(sub.q3_market_gap || '-'),
         escapeCSV(sub.q4_alternate || '-'),
-        escapeCSV(sub.q5_other_pain || '-')
+        escapeCSV(sub.q5_other_pain || '-'),
+        escapeCSV(sub.email || '-'),
+        escapeCSV(sub.phone || '-'),
+        escapeCSV(new Date(sub.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })),
+        escapeCSV(sub.id)
       ].join(','));
 
       const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');

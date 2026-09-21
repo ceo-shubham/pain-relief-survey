@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - Pain Relief Survey</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://unpkg.com/feather-icons"></script>
+  <!-- Chart.js for QN1 Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="background: #f8fafc;">
+  <div class="admin-container">
+    
+    <!-- Admin Top Header -->
+    <div class="admin-header">
+      <div class="admin-title-area">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge-tag" style="margin-bottom: 0; background: #e0f2fe; color: #0369a1; border-color: #bae6fd;">
+            Admin Portal
+          </span>
+          <span style="font-size: 0.8rem; color: #64748b;" id="last-updated-text">Live Sync</span>
+        </div>
+        <h1 style="margin-top: 6px;">Survey Responses & Question Insights</h1>
+        <p>Question-wise submissions, respondent details, analytics & CSV export</p>
+      </div>
+      <div class="admin-actions">
+        <a href="/" target="_blank" class="btn-refresh" style="text-decoration: none;">
+          <i data-feather="external-link" style="width: 15px; height: 15px;"></i>
+          <span>Open Survey</span>
+        </a>
+        <button id="btn-refresh-data" class="btn-refresh">
+          <i data-feather="refresh-cw" style="width: 15px; height: 15px;"></i>
+          <span>Refresh</span>
+        </button>
+        <a href="/api/export" class="btn-export" download>
+          <i data-feather="download" style="width: 16px; height: 16px;"></i>
+          <span>Export CSV / Excel</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- KPI Statistics Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon pink">
+          <i data-feather="users"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-val" id="stat-total-submissions">0</div>
+          <div class="stat-label">Total Submissions</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <i data-feather="thumbs-up"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-val" id="stat-q1-yes-count">0</div>
+          <div class="stat-label">Q1 Yes (Relief Milta Hai)</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon purple">
+          <i data-feather="star"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-val" id="stat-q1-avg-score">0.0</div>
+          <div class="stat-label">Avg Relief Rating (1 to 5)</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <i data-feather="mail"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-val" id="stat-contact-shared">0</div>
+          <div class="stat-label">Contacts Provided</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Search Filter -->
+    <div class="search-input-wrap">
+      <i data-feather="search" class="search-icon" style="width: 18px; height: 18px;"></i>
+      <input
+        type="text"
+        id="search-box"
+        class="search-input"
+        placeholder="Search answers, respondent name, email, phone number, keywords..."
+      />
+    </div>
+
+    <!-- Question Tabs Navigation -->
+    <div class="tabs-nav" id="tabs-container">
+      <button class="tab-btn active" data-tab="all">
+        <i data-feather="grid" style="width: 15px; height: 15px;"></i>
+        <span>All Submissions</span>
+        <span class="tab-count" id="count-all">0</span>
+      </button>
+
+      <button class="tab-btn" data-tab="q1">
+        <i data-feather="activity" style="width: 15px; height: 15px;"></i>
+        <span>QN 1: Heating Pad Relief</span>
+        <span class="tab-count" id="count-q1">0</span>
+      </button>
+
+      <button class="tab-btn" data-tab="q2">
+        <i data-feather="alert-circle" style="width: 15px; height: 15px;"></i>
+        <span>QN 2: Flaws / Drawbacks</span>
+        <span class="tab-count" id="count-q2">0</span>
+      </button>
+
+      <button class="tab-btn" data-tab="q3">
+        <i data-feather="help-circle" style="width: 15px; height: 15px;"></i>
+        <span>QN 3: Market Gap / Desired</span>
+        <span class="tab-count" id="count-q3">0</span>
+      </button>
+
+      <button class="tab-btn" data-tab="q4">
+        <i data-feather="repeat" style="width: 15px; height: 15px;"></i>
+        <span>QN 4: Alternate Solutions</span>
+        <span class="tab-count" id="count-q4">0</span>
+      </button>
+
+      <button class="tab-btn" data-tab="q5">
+        <i data-feather="target" style="width: 15px; height: 15px;"></i>
+        <span>QN 5: Other Pain Areas</span>
+        <span class="tab-count" id="count-q5">0</span>
+      </button>
+    </div>
+
+    <!-- Tab Contents Container -->
+    <div id="tab-content-area">
+
+      <!-- ================= TAB: ALL SUBMISSIONS ================= -->
+      <div id="view-all" class="tab-view">
+        <div id="all-submissions-list" class="qn-feed-list">
+          <div class="empty-box">Loading submissions...</div>
+        </div>
+      </div>
+
+      <!-- ================= TAB: QN1 ================= -->
+      <div id="view-q1" class="tab-view" style="display: none;">
+        <div class="survey-card" style="margin-bottom: 20px;">
+          <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 6px;">
+            QN1: Heating pad se kya period pain mein relief milta hai? (If yes, 1 to 5 level tak kitna?)
+          </h3>
+          <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 18px;">
+            Distribution of Yes/No responses and Relief Levels (1 = Mild to 5 = Complete relief)
+          </p>
+          <div style="max-width: 600px; margin: 0 auto; height: 260px;">
+            <canvas id="q1RatingChart"></canvas>
+          </div>
+        </div>
+        <div id="q1-submissions-list" class="qn-feed-list"></div>
+      </div>
+
+      <!-- ================= TAB: QN2 ================= -->
+      <div id="view-q2" class="tab-view" style="display: none;">
+        <div class="survey-card" style="margin-bottom: 20px;">
+          <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 4px;">
+            QN2: Aapke according heating pads ke koi flaws, drawbacks ya problems?
+          </h3>
+          <p style="color: #64748b; font-size: 0.9rem;">
+            Feedback on heating pad issues, design flaws, and complaints
+          </p>
+        </div>
+        <div id="q2-submissions-list" class="qn-feed-list"></div>
+      </div>
+
+      <!-- ================= TAB: QN3 ================= -->
+      <div id="view-q3" class="tab-view" style="display: none;">
+        <div class="survey-card" style="margin-bottom: 20px;">
+          <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 4px;">
+            QN3: Period pain related aisi cheez jo aapko lagta hai market mein honi chahiye but abhi nahi hai?
+          </h3>
+          <p style="color: #64748b; font-size: 0.9rem;">
+            Market gaps, wishlist ideas, and dream products suggested by users
+          </p>
+        </div>
+        <div id="q3-submissions-list" class="qn-feed-list"></div>
+      </div>
+
+      <!-- ================= TAB: QN4 ================= -->
+      <div id="view-q4" class="tab-view" style="display: none;">
+        <div class="survey-card" style="margin-bottom: 20px;">
+          <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 4px;">
+            QN4: Alternate solution for pain relief other than heating pad and why's that?
+          </h3>
+          <p style="color: #64748b; font-size: 0.9rem;">
+            Alternative home remedies, medications, habits, or products used for relief
+          </p>
+        </div>
+        <div id="q4-submissions-list" class="qn-feed-list"></div>
+      </div>
+
+      <!-- ================= TAB: QN5 ================= -->
+      <div id="view-q5" class="tab-view" style="display: none;">
+        <div class="survey-card" style="margin-bottom: 20px;">
+          <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 4px;">
+            QN5: Kya aap kisi aur tarah ka pain face karte hain? Pain area batayein aur kya heating pad usme kaam karta hai?
+          </h3>
+          <p style="color: #64748b; font-size: 0.9rem;">
+            Other body pain areas (back, neck, joints) and heating pad effectiveness
+          </p>
+        </div>
+        <div id="q5-submissions-list" class="qn-feed-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/js/admin.js"></script>
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>

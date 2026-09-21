@@ -1,0 +1,28 @@
+[
+  {
+    "id": "sub_1789983297972_gg4qo",
+    "createdAt": "2026-09-21T09:34:57.972Z",
+    "q1_relief": "no",
+    "q1_level": null,
+    "q2_flaws": "Heavy weight and overheat ho jata hai",
+    "q3_market_gap": "Fast acting pain relief roll-on",
+    "q4_alternate": "Meftal Spas tablet",
+    "q5_other_pain": "Neck pain",
+    "name": "Anonymous",
+    "email": "",
+    "phone": ""
+  },
+  {
+    "id": "sub_1789983297952_pyhp2",
+    "createdAt": "2026-09-21T09:34:57.952Z",
+    "q1_relief": "yes",
+    "q1_level": 4,
+    "q2_flaws": "Wire choti hoti hai and plug ke pass baithna padta hai",
+    "q3_market_gap": "Rechargeable wireless belt honi chahiye jo dress ke andar pehan sakein",
+    "q4_alternate": "Hot water bottle & herbal tea",
+    "q5_other_pain": "Lower back pain during periods, heating pad helps",
+    "name": "Priya Sharma",
+    "email": "priya.s@example.com",
+    "phone": "9876543210"
+  }
+]

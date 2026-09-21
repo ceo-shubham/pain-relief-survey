@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pain Relief & Heating Pad Feedback Survey</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <!-- Feather Icons for lightweight modern icons -->
+  <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="badge-tag">
+        <i data-feather="heart" style="width: 14px; height: 14px;"></i>
+        <span>Quick Community Survey</span>
+      </div>
+      <h1 class="app-title">Pain Relief & Heating Pad Survey</h1>
+      <p class="app-subtitle">
+        Aapka experience humare liye important hai. Kripya apna honest feedback share karein.
+      </p>
+    </header>
+
+    <!-- Survey Form Section -->
+    <main id="survey-section">
+      <form id="survey-form">
+
+        <!-- Question 1 -->
+        <div class="survey-card" id="card-q1">
+          <div class="card-header">
+            <span class="q-badge">Q1</span>
+            <div class="q-title-wrap">
+              <h2 class="q-title">Heating pad se kya period pain mein relief milta hai?</h2>
+              <p class="q-subtext">Does heating pad relieve period pain for you? <span class="optional-tag">Optional</span></p>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Yes / No Options -->
+            <div class="yes-no-group">
+              <button type="button" class="choice-btn" id="q1-yes-btn" data-value="yes">
+                <span>👍</span>
+                <span>Yes, Relief milta hai</span>
+              </button>
+              <button type="button" class="choice-btn" id="q1-no-btn" data-value="no">
+                <span>👎</span>
+                <span>No, Relief nahi milta</span>
+              </button>
+            </div>
+            <input type="hidden" id="q1_relief" name="q1_relief" value="" />
+
+            <!-- Rating scale if YES -->
+            <div class="rating-section" id="q1-rating-container" style="display: none;">
+              <div class="rating-title">
+                <i data-feather="sliders" style="width: 16px; height: 16px; color: #e11d48;"></i>
+                <span>1 to 5 level tak kitna relief milta hai? (Select one)</span>
+              </div>
+              <div class="rating-grid">
+                <div class="rating-chip" data-rating="1">
+                  <span class="rate-num">1</span>
+                  <span class="rate-label">Mild (10-20%)</span>
+                </div>
+                <div class="rating-chip" data-rating="2">
+                  <span class="rate-num">2</span>
+                  <span class="rate-label">Slight (30-40%)</span>
+                </div>
+                <div class="rating-chip" data-rating="3">
+                  <span class="rate-num">3</span>
+                  <span class="rate-label">Moderate (50-60%)</span>
+                </div>
+                <div class="rating-chip" data-rating="4">
+                  <span class="rate-num">4</span>
+                  <span class="rate-label">Good (70-80%)</span>
+                </div>
+                <div class="rating-chip" data-rating="5">
+                  <span class="rate-num">5</span>
+                  <span class="rate-label">Complete (90-100%)</span>
+                </div>
+              </div>
+              <input type="hidden" id="q1_level" name="q1_level" value="" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="survey-card" id="card-q2">
+          <div class="card-header">
+            <span class="q-badge">Q2</span>
+            <div class="q-title-wrap">
+              <h2 class="q-title">Aapke according heating pads ke koi flaws, drawbacks ya problems?</h2>
+              <p class="q-subtext">What issues do you face while using heating pads? <span class="optional-tag">Optional</span></p>
+            </div>
+          </div>
+          <div class="card-body">
+            <textarea
+              class="form-textarea"
+              id="q2_flaws"
+              name="q2_flaws"
+              rows="3"
+              placeholder="e.g. Wire choti hoti hai, carry karna difficult hai, bahut heavy hai, ya temperature control theek nahi hota..."
+            ></textarea>
+            <div class="input-hint">Descriptive or brief feedback</div>
+          </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="survey-card" id="card-q3">
+          <div class="card-header">
+            <span class="q-badge">Q3</span>
+            <div class="q-title-wrap">
+              <h2 class="q-title">Period pain related aisi cheez jo aapko lagta hai market mein honi chahiye, but abhi nahi hai?</h2>
+              <p class="q-subtext">What missing product/solution do you wish existed? <span class="optional-tag">Optional</span></p>
+            </div>
+          </div>
+          <div class="card-body">
+            <textarea
+              class="form-textarea"
+              id="q3_market_gap"
+              name="q3_market_gap"
+              rows="3"
+              placeholder="e.g. Invisible wearable heated patch, discreet belt under clothes, fast soothing roll-on..."
+            ></textarea>
+            <div class="input-hint">Descriptive or idea</div>
+          </div>
+        </div>
+
+        <!-- Question 4 -->
+        <div class="survey-card" id="card-q4">
+          <div class="card-header">
+            <span class="q-badge">Q4</span>
+            <div class="q-title-wrap">
+              <h2 class="q-title">Alternate solution for pain relief other than heating pad, and why?</h2>
+              <p class="q-subtext">Heating pad ke alawa aap kya use karte hain aur kyu? <span class="optional-tag">Optional</span></p>
+            </div>
+          </div>
+          <div class="card-body">
+            <textarea
+              class="form-textarea"
+              id="q4_alternate"
+              name="q4_alternate"
+              rows="2"
+              placeholder="e.g. Herbal Chamomile tea, Acupressure patch, Meftal Spas, Hot bath, Yoga (One word or brief description)"
+            ></textarea>
+            <div class="input-hint">One word or brief description</div>
+          </div>
+        </div>
+
+        <!-- Question 5 -->
+        <div class="survey-card" id="card-q5">
+          <div class="card-header">
+            <span class="q-badge">Q5</span>
+            <div class="q-title-wrap">
+              <h2 class="q-title">Kya aap kisi aur tarah ka pain face karte hain? Pain area batayein aur kya heating pad usme kaam karta hai?</h2>
+              <p class="q-subtext">Any other body pain areas, and does heating pad help there? <span class="optional-tag">Optional</span></p>
+            </div>
+          </div>
+          <div class="card-body">
+            <textarea
+              class="form-textarea"
+              id="q5_other_pain"
+              name="q5_other_pain"
+              rows="3"
+              placeholder="e.g. Lower back pain, Neck stiffness, Muscle soreness - Yes, heating pad helps a lot with lower back."
+            ></textarea>
+            <div class="input-hint">Descriptive feedback</div>
+          </div>
+        </div>
+
+        <!-- Optional User Info Card -->
+        <div class="survey-card" id="card-user-info">
+          <div class="card-header">
+            <span class="q-badge info-badge">
+              <i data-feather="user" style="width: 18px; height: 18px;"></i>
+            </span>
+            <div class="q-title-wrap">
+              <h2 class="q-title">Aapki Contact Info (Optional)</h2>
+              <p class="q-subtext">Agar aap chahein toh contact share kar sakte hain, yeh bilkul optional hai.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="info-fields-grid">
+              <div class="field-group full-span">
+                <label for="name">Aapka Name</label>
+                <input
+                  type="text"
+                  class="form-input"
+                  id="name"
+                  name="name"
+                  placeholder="e.g. Anjali Sharma (Leave blank if anonymous)"
+                />
+              </div>
+              <div class="field-group">
+                <label for="email">Email Address</label>
+                <input
+                  type="email"
+                  class="form-input"
+                  id="email"
+                  name="email"
+                  placeholder="e.g. yourname@example.com"
+                />
+              </div>
+              <div class="field-group">
+                <label for="phone">WhatsApp / Mobile Number</label>
+                <input
+                  type="tel"
+                  class="form-input"
+                  id="phone"
+                  name="phone"
+                  placeholder="e.g. +91 98765 43210"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="submit-wrapper">
+          <button type="submit" class="btn-primary" id="submit-btn">
+            <i data-feather="send" style="width: 18px; height: 18px;"></i>
+            <span>Submit Response</span>
+          </button>
+        </div>
+      </form>
+    </main>
+
+    <!-- Success Confirmation State (Hidden initially) -->
+    <div id="success-screen" style="display: none;">
+      <div class="success-card">
+        <div class="success-icon-wrap">
+          <i data-feather="check"></i>
+        </div>
+        <h2 style="font-size: 1.8rem; font-weight: 700; color: #0f172a; margin-bottom: 8px;">
+          Thank You for Your Feedback!
+        </h2>
+        <p style="color: #64748b; font-size: 1.05rem; max-width: 480px; margin: 0 auto 24px;">
+          Aapka response successfully save ho gaya hai. Aapka feedback humare liye bahut valuable hai.
+        </p>
+        <button type="button" class="btn-primary" style="max-width: 260px; margin: 0 auto;" id="btn-submit-another">
+          Submit Another Response
+        </button>
+      </div>
+    </div>
+
+    <!-- Minimal footer -->
+    <footer style="margin-top: 40px; text-align: center; font-size: 0.82rem; color: #94a3b8;">
+      <p>Confidential Community Research Survey</p>
+      <p style="margin-top: 6px;">
+        <a href="/admin" style="color: #6366f1; text-decoration: none; font-weight: 600;">Admin Dashboard &rarr;</a>
+      </p>
+    </footer>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>

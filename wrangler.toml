@@ -1,0 +1,11 @@
+name = "pain-relief-survey"
+main = "worker.js"
+compatibility_date = "2024-09-01"
+account_id = "6a4deb8093c0933acae8333de46863b6"
+
+# Static assets / site directory
+assets = { directory = "./public" }
+
+[[kv_namespaces]]
+binding = "SURVEY_DB"
+id = "c36ea89e838947128055461e9d42d9e4"

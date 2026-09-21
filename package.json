@@ -1,0 +1,16 @@
+{
+  "name": "pain-relief-survey",
+  "version": "1.0.0",
+  "description": "Pain Relief & Heating Pad Survey Web Application with Admin Dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "deploy:cf": "node deploy-to-cloudflare.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {}
+}

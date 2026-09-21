@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Admin Dashboard - VYVIA Sanitary Pad Survey</title>
+  <title>Admin Dashboard - VYVIA Pre-Launch Research</title>
   <link rel="icon" type="image/png" href="/logo.png" />
   <link rel="shortcut icon" href="/logo.png" />
   <link rel="stylesheet" href="/css/styles.css" />
@@ -21,7 +21,7 @@
       </div>
       <h2 style="font-size: 1.4rem; font-weight: 700; color: #0f172a; margin-bottom: 6px;">VYVIA Admin Access</h2>
       <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 20px;">
-        Please enter the admin password to access survey insights and respondent analytics.
+        Please enter the admin password to access market research insights and respondent data.
       </p>
 
       <form id="admin-login-form">
@@ -60,12 +60,12 @@
       <div class="admin-title-area">
         <div style="display: flex; align-items: center; gap: 8px;">
           <span class="badge-tag" style="margin-bottom: 0; background: #e0f2fe; color: #0369a1; border-color: #bae6fd;">
-            Admin Portal
+            Research Portal
           </span>
           <span style="font-size: 0.78rem; color: #64748b;" id="last-updated-text">Live Sync</span>
         </div>
-        <h1 style="margin-top: 4px;">VYVIA Survey Responses &amp; Insights</h1>
-        <p>Question-wise submissions, respondent analytics, live charts &amp; CSV export</p>
+        <h1 style="margin-top: 4px;">VYVIA Pre-Launch Survey &amp; Insights</h1>
+        <p>Consumer pain points with current pads, pH-balancing pad demand, live charts &amp; CSV export</p>
       </div>
       <div class="admin-actions">
         <a href="/" target="_blank" class="btn-refresh" style="text-decoration: none;">
@@ -100,32 +100,32 @@
       </div>
 
       <div class="stat-card">
-        <div class="stat-icon green">
-          <i data-feather="shield"></i>
+        <div class="stat-icon pink">
+          <i data-feather="alert-triangle"></i>
         </div>
         <div class="stat-info">
-          <div class="stat-val" id="stat-zero-rash-rate">0%</div>
-          <div class="stat-label">Zero Irritation Rate</div>
+          <div class="stat-val" id="stat-suffer-rash-rate">0%</div>
+          <div class="stat-label">Experience Rashes</div>
         </div>
       </div>
 
       <div class="stat-card">
         <div class="stat-icon purple">
-          <i data-feather="check-circle"></i>
+          <i data-feather="droplet"></i>
         </div>
         <div class="stat-info">
-          <div class="stat-val" id="stat-zero-leak-rate">0%</div>
-          <div class="stat-label">Zero Leakage Rate</div>
+          <div class="stat-val" id="stat-experience-leak-rate">0%</div>
+          <div class="stat-label">Experience Leakage</div>
         </div>
       </div>
 
       <div class="stat-card">
-        <div class="stat-icon pink">
-          <i data-feather="heart"></i>
+        <div class="stat-icon green">
+          <i data-feather="check-circle"></i>
         </div>
         <div class="stat-info">
-          <div class="stat-val" id="stat-better-exp-rate">0%</div>
-          <div class="stat-label">Better vs Regular</div>
+          <div class="stat-val" id="stat-ready-switch-rate">0%</div>
+          <div class="stat-label">Ready to Switch to pH Pad</div>
         </div>
       </div>
     </div>
@@ -151,13 +151,13 @@
 
       <button class="tab-btn" data-tab="q1">
         <i data-feather="activity" style="width: 14px; height: 14px;"></i>
-        <span>Q1: Rashes &amp; Itching</span>
+        <span>Q1: Rashes &amp; Chafing</span>
         <span class="tab-count" id="count-q1">0</span>
       </button>
 
       <button class="tab-btn" data-tab="q2">
         <i data-feather="zap" style="width: 14px; height: 14px;"></i>
-        <span>Q2: Stinging / Burning</span>
+        <span>Q2: Burning / Stinging</span>
         <span class="tab-count" id="count-q2">0</span>
       </button>
 
@@ -175,13 +175,13 @@
 
       <button class="tab-btn" data-tab="q5">
         <i data-feather="wind" style="width: 14px; height: 14px;"></i>
-        <span>Q5: Odor Control (ZnO)</span>
+        <span>Q5: Period Odor Control</span>
         <span class="tab-count" id="count-q5">0</span>
       </button>
 
       <button class="tab-btn" data-tab="q6">
         <i data-feather="clock" style="width: 14px; height: 14px;"></i>
-        <span>Q6: Absorption Speed</span>
+        <span>Q6: Absorption &amp; Clots</span>
         <span class="tab-count" id="count-q6">0</span>
       </button>
 
@@ -193,7 +193,7 @@
 
       <button class="tab-btn" data-tab="q8">
         <i data-feather="award" style="width: 14px; height: 14px;"></i>
-        <span>Q8: Overall vs Regular</span>
+        <span>Q8: pH Pad Need &amp; Switch</span>
         <span class="tab-count" id="count-q8">0</span>
       </button>
     </div>
@@ -212,10 +212,10 @@
       <div id="view-q1" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q1: Did you experience any rashes or itching after using the pad?
+            Q1: Do you experience rashes, itching, or chafing after using your regular sanitary pads?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            Distribution of skin comfort and irritation responses
+            Frequency of rashes and skin friction with conventional pads
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q1"></canvas>
@@ -228,10 +228,10 @@
       <div id="view-q2" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q2: Did you experience any burning or stinging sensation on your skin?
+            Q2: Do you feel a burning or stinging sensation in your intimate area during your periods?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            Frequency of burning or stinging sensation
+            Sensitivity and burning/stinging sensation with current pad brands
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q2"></canvas>
@@ -244,10 +244,10 @@
       <div id="view-q3" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q3: Did you feel wetness, dampness, or sweat after wearing the pad?
+            Q3: How does your regular sanitary pad feel in terms of sweat, dampness, and breathability?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            Breathability and moisture perception
+            Breathability and trapped moisture issues with existing pads
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q3"></canvas>
@@ -260,10 +260,10 @@
       <div id="view-q4" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q4: Did your vulvar skin feel soft and normal, or sticky / macerated (skin peeling/redness)?
+            Q4: How does your intimate / vulvar skin react after prolonged pad usage?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            Vulvar skin texture, safety, and softness
+            Vulvar skin reaction, chafing, and moisture-induced skin damage (maceration)
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q4"></canvas>
@@ -276,10 +276,10 @@
       <div id="view-q5" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q5: How effectively was foul odor or blood breakdown controlled?
+            Q5: How often do you experience unpleasant period odor or bacterial blood breakdown with current pads?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            ZnO antibacterial pathogen and odor control
+            Odor buildup and antibacterial protection failure in regular pads
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q5"></canvas>
@@ -292,10 +292,10 @@
       <div id="view-q6" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q6: How was the absorption speed for clots and heavy blood flow?
+            Q6: How effectively do your regular pads absorb heavy blood flow and clots?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            Intake speed and surface dryness retention
+            Top-sheet absorption speed and surface dryness retention
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q6"></canvas>
@@ -308,10 +308,10 @@
       <div id="view-q7" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q7: Did you encounter any side leakage issues?
+            Q7: How frequently do you face side leakage or staining issues with your regular pads?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            Side barrier containment and leakage performance
+            Side leakage and stain issues with conventional pads
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q7"></canvas>
@@ -324,10 +324,10 @@
       <div id="view-q8" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q8: Compared to conventional sanitary pads, how was your overall experience with VYVIA?
+            Q8: Would you switch to a dedicated pH-balancing, rash-free sanitary pad designed to protect intimate skin?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            Overall comparative satisfaction rating
+            Consumer interest in switching to VYVIA's upcoming pH-safe intimate pad
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q8"></canvas>
@@ -346,7 +346,7 @@
           <span>Survey Program By <strong>Anshika</strong></span>
         </div>
       </div>
-      <p class="footer-note">Confidential Admin Portal &bull; VYVIA Sanitary Pad Research</p>
+      <p class="footer-note">Confidential Admin Portal &bull; VYVIA Pre-Launch Research</p>
     </footer>
   </div>
 

@@ -114,7 +114,7 @@ app.post('/api/submit', (req, res) => {
   if (saved) {
     return res.status(201).json({
       success: true,
-      message: 'VYVIA survey response submitted successfully!',
+      message: 'Research response submitted successfully!',
       submission: newEntry
     });
   } else {
@@ -233,14 +233,14 @@ app.get('/api/export', requireAdmin, (req, res) => {
 
   const headers = [
     'Respondent Email',
-    'Q1 (Rashes/Itching)',
-    'Q2 (Burning/Stinging)',
-    'Q3 (Dampness/Sweat)',
-    'Q4 (Vulvar Skin Health)',
-    'Q5 (Odor Control - ZnO)',
-    'Q6 (Absorption Speed)',
-    'Q7 (Side Leakage)',
-    'Q8 (Overall VYVIA vs Regular)',
+    'Q1 (Rashes/Chafing with Current Pads)',
+    'Q2 (Burning/Stinging in Intimate Area)',
+    'Q3 (Dampness/Sweat & Breathability)',
+    'Q4 (Vulvar Skin Health & Chafing)',
+    'Q5 (Period Odor & Bacterial Breakdown)',
+    'Q6 (Absorption Speed & Clot Handling)',
+    'Q7 (Side Leakage & Staining Frequency)',
+    'Q8 (pH Pad Need & Switching Interest)',
     'Submission Date & Time'
   ];
 
@@ -266,10 +266,10 @@ app.get('/api/export', requireAdmin, (req, res) => {
   const csvContent = [headers.join(','), ...rows].join('\r\n');
 
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-  res.setHeader('Content-Disposition', 'attachment; filename="VYVIA_Survey_Responses.csv"');
+  res.setHeader('Content-Disposition', 'attachment; filename="VYVIA_PreLaunch_Research_Responses.csv"');
   res.send('\uFEFF' + csvContent);
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 VYVIA Survey Server running at: http://localhost:${PORT}`);
+  console.log(`🚀 VYVIA Research Server running at: http://localhost:${PORT}`);
 });

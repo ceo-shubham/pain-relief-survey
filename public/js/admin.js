@@ -154,23 +154,30 @@ function updateKpis(stats) {
   const total = stats.total || 0;
   document.getElementById('stat-total-submissions').textContent = total;
 
-  // Q1 Zero Rash rate (supports both English and legacy string)
+  // Q1 Suffer from rashes (anything other than zero irritation)
   const q1Counts = stats.questions?.q1 || {};
   const q1Zero = (q1Counts['Not at all (Zero irritation)'] || q1Counts['Bilkul nahi (Zero irritation)']) || 0;
-  const q1Rate = total > 0 ? Math.round((q1Zero / total) * 100) : 0;
-  document.getElementById('stat-zero-rash-rate').textContent = `${q1Rate}%`;
+  const q1RashSuffering = Math.max(0, total - q1Zero);
+  const q1Rate = total > 0 ? Math.round((q1RashSuffering / total) * 100) : 0;
+  document.getElementById('stat-suffer-rash-rate').textContent = `${q1Rate}%`;
 
-  // Q7 Zero Leak rate
+  // Q7 Experience leakage (anything other than zero leakage)
   const q7Counts = stats.questions?.q7 || {};
-  const q7Zero = q7Counts['Zero leakage'] || 0;
-  const q7Rate = total > 0 ? Math.round((q7Zero / total) * 100) : 0;
-  document.getElementById('stat-zero-leak-rate').textContent = `${q7Rate}%`;
+  const q7Zero = (q7Counts['Never (Zero leakage)'] || q7Counts['Zero leakage']) || 0;
+  const q7Leakage = Math.max(0, total - q7Zero);
+  const q7Rate = total > 0 ? Math.round((q7Leakage / total) * 100) : 0;
+  document.getElementById('stat-experience-leak-rate').textContent = `${q7Rate}%`;
 
-  // Q8 Better Experience rate
+  // Q8 Ready to Switch to pH-balancing pad
   const q8Counts = stats.questions?.q8 || {};
-  const q8Better = (q8Counts['Much better (Zero rashes + fresh feeling)'] || q8Counts['Bohot behtar (No rash + fresh feeling)']) || 0;
-  const q8Rate = total > 0 ? Math.round((q8Better / total) * 100) : 0;
-  document.getElementById('stat-better-exp-rate').textContent = `${q8Rate}%`;
+  let q8Definite = 0;
+  Object.keys(q8Counts).forEach(k => {
+    if (k.toLowerCase().includes('definitely') || k.toLowerCase().includes('bohot behtar')) {
+      q8Definite += q8Counts[k];
+    }
+  });
+  const q8Rate = total > 0 ? Math.round((q8Definite / total) * 100) : 0;
+  document.getElementById('stat-ready-switch-rate').textContent = `${q8Rate}%`;
 
   // Update tab counter badges
   document.getElementById('count-all').textContent = total;
@@ -223,13 +230,13 @@ function renderAllViews(query = '') {
 function getBadgeClass(val) {
   if (!val) return 'tag-yellow';
   const v = val.toLowerCase();
-  if (v.includes('not at all') || v.includes('zero') || v.includes('dry') || v.includes('safe') || v.includes('100%') || v.includes('instant') || v.includes('much better') || v.includes('bilkul nahi') || v.includes('turant') || v.includes('bohot behtar')) {
+  if (v.includes('definitely') || v.includes('not at all') || v.includes('zero') || v.includes('dry') || v.includes('healthy') || v.includes('safe') || v.includes('never') || v.includes('instant')) {
     return 'tag-green';
   }
-  if (v.includes('minimal') || v.includes('well controlled') || v.includes('significantly') || v.includes('normal') || v.includes('kam') || v.includes('hadd tak')) {
+  if (v.includes('minimal') || v.includes('rarely') || v.includes('maybe') || v.includes('normal')) {
     return 'tag-blue';
   }
-  if (v.includes('moderate') || v.includes('light flow') || v.includes('slight') || v.includes('about the same') || v.includes('same') || v.includes('thoda') || v.includes('thodi')) {
+  if (v.includes('moderate') || v.includes('light flow') || v.includes('slight') || v.includes('occasional') || v.includes('sticky') || v.includes('satisfied')) {
     return 'tag-yellow';
   }
   return 'tag-red';
@@ -239,7 +246,7 @@ function getBadgeClass(val) {
 function renderAllSubmissionsTab(list) {
   const container = document.getElementById('all-submissions-list');
   if (list.length === 0) {
-    container.innerHTML = '<div class="empty-box">No survey submissions recorded yet.</div>';
+    container.innerHTML = '<div class="empty-box">No research survey submissions recorded yet.</div>';
     return;
   }
 
@@ -270,7 +277,7 @@ function renderAllSubmissionsTab(list) {
 
         <div style="display: grid; gap: 6px; margin-top: 10px;">
           <div class="ans-row">
-            <span class="ans-label">Q1 (Rashes/Itch):</span>
+            <span class="ans-label">Q1 (Rashes/Chafing):</span>
             <span class="ans-val-pill ${getBadgeClass(sub.q1_rashes)}">${escapeHTML(sub.q1_rashes || 'N/A')}</span>
           </div>
           <div class="ans-row">
@@ -286,11 +293,11 @@ function renderAllSubmissionsTab(list) {
             <span class="ans-val-pill ${getBadgeClass(sub.q4_skin_texture)}">${escapeHTML(sub.q4_skin_texture || 'N/A')}</span>
           </div>
           <div class="ans-row">
-            <span class="ans-label">Q5 (Odor Control - ZnO):</span>
+            <span class="ans-label">Q5 (Period Odor Control):</span>
             <span class="ans-val-pill ${getBadgeClass(sub.q5_odor_control)}">${escapeHTML(sub.q5_odor_control || 'N/A')}</span>
           </div>
           <div class="ans-row">
-            <span class="ans-label">Q6 (Absorption Speed):</span>
+            <span class="ans-label">Q6 (Absorption & Clots):</span>
             <span class="ans-val-pill ${getBadgeClass(sub.q6_absorption)}">${escapeHTML(sub.q6_absorption || 'N/A')}</span>
           </div>
           <div class="ans-row">
@@ -298,7 +305,7 @@ function renderAllSubmissionsTab(list) {
             <span class="ans-val-pill ${getBadgeClass(sub.q7_leakage)}">${escapeHTML(sub.q7_leakage || 'N/A')}</span>
           </div>
           <div class="ans-row">
-            <span class="ans-label">Q8 (Overall VYVIA):</span>
+            <span class="ans-label">Q8 (pH Pad Need & Switch):</span>
             <span class="ans-val-pill ${getBadgeClass(sub.q8_overall_experience)}">${escapeHTML(sub.q8_overall_experience || 'N/A')}</span>
           </div>
         </div>
@@ -369,15 +376,9 @@ function renderAllCharts(stats) {
       key: 'q1',
       labels: [
         'Not at all (Zero irritation)',
-        'Very minimal',
-        'Moderate (Occasional)',
-        'Severe (Significant rashes)'
-      ],
-      altLabels: [
-        'Bilkul nahi (Zero irritation)',
-        'Bohat kam',
-        'Moderate (Kabhi kabhi)',
-        'Severe (Kaafi zyada rashes)'
+        'Rarely / Very minimal',
+        'Moderate (Occasional irritation)',
+        'Severe (Frequent / significant rashes)'
       ],
       shortLabels: ['Zero Irritation', 'Minimal', 'Moderate', 'Severe Rashes'],
       colors: ['#10b981', '#0ea5e9', '#f59e0b', '#ef4444']
@@ -386,14 +387,9 @@ function renderAllCharts(stats) {
       num: 2,
       key: 'q2',
       labels: [
-        'Not at all',
-        'Only during light flow',
-        'Continuous from day one'
-      ],
-      altLabels: [
-        'Bilkul nahi',
-        'Sirf light flow ke time',
-        'Pehle din se continuous'
+        'Not at all (No stinging)',
+        'Only during light flow days',
+        'Continuous throughout period days'
       ],
       shortLabels: ['No Stinging', 'Light Flow Only', 'Continuous'],
       colors: ['#10b981', '#f59e0b', '#ef4444']
@@ -402,62 +398,42 @@ function renderAllCharts(stats) {
       num: 3,
       key: 'q3',
       labels: [
-        'Felt dry and fresh',
-        'Slight dampness / moisture',
-        'Excessive sweat / high dampness'
+        'Feels dry and fresh',
+        'Mild dampness / moisture buildup',
+        'Excessive sweat / trapped heat and dampness'
       ],
-      altLabels: [
-        'Dry and fresh laga',
-        'Thoda sa gila-pan tha',
-        'Bohot zyada pasina/dampness tha'
-      ],
-      shortLabels: ['Dry & Fresh', 'Mild Dampness', 'Heavy Sweat'],
+      shortLabels: ['Dry & Fresh', 'Mild Dampness', 'Excessive Sweat'],
       colors: ['#10b981', '#f59e0b', '#ef4444']
     },
     {
       num: 4,
       key: 'q4',
       labels: [
-        'Skin remained normal and safe',
-        'Felt slightly sticky',
-        'Skin chafed / redness occurred'
+        'Skin remains healthy, soft, and safe',
+        'Feels sticky and mildly irritated',
+        'Skin gets chafed / red / macerated (peeling)'
       ],
-      altLabels: [
-        'Skin normal aur safe rahi',
-        'Thodi sticky lagi',
-        'Skin chhil gayi / redness aayi'
-      ],
-      shortLabels: ['Safe & Normal', 'Slightly Sticky', 'Chafed / Redness'],
+      shortLabels: ['Healthy & Safe', 'Slightly Sticky', 'Chafed / Redness'],
       colors: ['#10b981', '#f59e0b', '#ef4444']
     },
     {
       num: 5,
       key: 'q5',
       labels: [
-        '100% odor-free (Zero smell)',
-        'Significantly controlled',
-        'Same odor as regular pads'
+        'Never (Current pads control odor completely)',
+        'Occasionally / Moderate odor on heavy days',
+        'Frequently (Noticeable unpleasant odor)'
       ],
-      altLabels: [
-        '100% koi smell nahi aayi',
-        'Kaafi hadd tak control thi',
-        'Regular pads jaisi hi smell thi'
-      ],
-      shortLabels: ['100% Odorless', 'Well Controlled', 'Like Regular Pads'],
-      colors: ['#10b981', '#0ea5e9', '#f59e0b']
+      shortLabels: ['Zero Odor', 'Moderate Odor', 'Frequent Odor'],
+      colors: ['#10b981', '#f59e0b', '#ef4444']
     },
     {
       num: 6,
       key: 'q6',
       labels: [
-        'Instant absorption (Surface stayed dry)',
+        'Absorbs instantly (Surface stays completely dry)',
         'Normal absorption speed',
-        'Stayed on surface (Slow absorption)'
-      ],
-      altLabels: [
-        'Turant absorb ho gaya (Surface dry raha)',
-        'Normal time liya',
-        'Upar hi thehra raha (Slow absorption)'
+        'Liquid pools on top / Slow absorption'
       ],
       shortLabels: ['Instant Absorption', 'Normal Speed', 'Slow / Pooled'],
       colors: ['#10b981', '#0ea5e9', '#ef4444']
@@ -466,33 +442,23 @@ function renderAllCharts(stats) {
       num: 7,
       key: 'q7',
       labels: [
-        'Zero leakage',
-        'Slight leak on heavy flow days',
-        'Frequent / significant leakage'
+        'Never (Zero leakage)',
+        'Occasionally on heavy flow days',
+        'Frequently / Significant leakage'
       ],
-      altLabels: [
-        'Zero leakage',
-        'Heavy flow ke din thoda leak hua',
-        'Kaafi leakage hui'
-      ],
-      shortLabels: ['Zero Leakage', 'Slight on Heavy Days', 'Frequent Leakage'],
+      shortLabels: ['Zero Leakage', 'Occasional Leak', 'Frequent Leakage'],
       colors: ['#10b981', '#f59e0b', '#ef4444']
     },
     {
       num: 8,
       key: 'q8',
       labels: [
-        'Much better (Zero rashes + fresh feeling)',
-        'About the same',
-        'Uncomfortable'
+        'Definitely Yes (Actively looking for a rash-free & pH-safe pad)',
+        'Maybe / Interested to try and see results',
+        'No / Completely satisfied with current pads'
       ],
-      altLabels: [
-        'Bohot behtar (No rash + fresh feeling)',
-        'Lagbhag same',
-        'Uncomfortable laga'
-      ],
-      shortLabels: ['Much Better (Fresh)', 'About The Same', 'Uncomfortable'],
-      colors: ['#10b981', '#f59e0b', '#ef4444']
+      shortLabels: ['Definitely Yes (Switch)', 'Maybe / Try', 'Satisfied Currently'],
+      colors: ['#10b981', '#0ea5e9', '#f59e0b']
     }
   ];
 
@@ -501,9 +467,16 @@ function renderAllCharts(stats) {
     if (!canvas) return;
 
     const counts = stats.questions?.[cfg.key] || {};
-    const dataValues = cfg.labels.map((l, idx) => {
-      const alt = cfg.altLabels ? cfg.altLabels[idx] : null;
-      return (counts[l] || 0) + (alt && counts[alt] ? counts[alt] : 0);
+    const dataValues = cfg.labels.map(l => {
+      // Find exact match or fuzzy match
+      let count = counts[l] || 0;
+      if (!count) {
+        const lower = l.toLowerCase().substring(0, 15);
+        Object.keys(counts).forEach(k => {
+          if (k.toLowerCase().includes(lower)) count += counts[k];
+        });
+      }
+      return count;
     });
 
     if (charts[cfg.num]) {

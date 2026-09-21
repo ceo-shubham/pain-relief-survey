@@ -109,7 +109,7 @@ export default {
 
         return json({
           success: true,
-          message: 'VYVIA survey response submitted successfully!',
+          message: 'VYVIA research response submitted successfully!',
           submission: newEntry
         }, 201);
       } catch (err) {
@@ -232,14 +232,14 @@ export default {
 
       const headers = [
         'Respondent Email',
-        'Q1 (Rashes/Itching)',
-        'Q2 (Burning/Stinging)',
-        'Q3 (Dampness/Sweat)',
-        'Q4 (Vulvar Skin Health)',
-        'Q5 (Odor Control - ZnO)',
-        'Q6 (Absorption Speed)',
-        'Q7 (Side Leakage)',
-        'Q8 (Overall VYVIA vs Regular)',
+        'Q1 (Rashes/Chafing with Current Pads)',
+        'Q2 (Burning/Stinging in Intimate Area)',
+        'Q3 (Dampness/Sweat & Breathability)',
+        'Q4 (Vulvar Skin Health & Chafing)',
+        'Q5 (Period Odor & Bacterial Breakdown)',
+        'Q6 (Absorption Speed & Clot Handling)',
+        'Q7 (Side Leakage & Staining Frequency)',
+        'Q8 (pH Pad Need & Switching Interest)',
         'Submission Date & Time'
       ];
 
@@ -267,7 +267,7 @@ export default {
       return new Response(csvContent, {
         headers: {
           'Content-Type': 'text/csv; charset=utf-8',
-          'Content-Disposition': 'attachment; filename="VYVIA_Survey_Responses.csv"'
+          'Content-Disposition': 'attachment; filename="VYVIA_PreLaunch_Research_Responses.csv"'
         }
       });
     }
@@ -282,6 +282,6 @@ export default {
       return env.ASSETS.fetch(request);
     }
 
-    return new Response('VYVIA Survey Worker Running', { status: 200 });
+    return new Response('VYVIA Research Survey Worker Running', { status: 200 });
   }
 };

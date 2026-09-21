@@ -69,14 +69,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check if any question is missed
     const missing = [];
-    if (!q1) missing.push('Q1 (Rashes/Itching)');
+    if (!q1) missing.push('Q1 (Rashes/Chafing)');
     if (!q2) missing.push('Q2 (Stinging/Burning)');
     if (!q3) missing.push('Q3 (Dampness/Sweat)');
     if (!q4) missing.push('Q4 (Vulvar Skin Condition)');
-    if (!q5) missing.push('Q5 (Odor Control)');
-    if (!q6) missing.push('Q6 (Absorption Speed)');
+    if (!q5) missing.push('Q5 (Period Odor Control)');
+    if (!q6) missing.push('Q6 (Absorption & Clots)');
     if (!q7) missing.push('Q7 (Side Leakage)');
-    if (!q8) missing.push('Q8 (Overall Comparison)');
+    if (!q8) missing.push('Q8 (pH Pad Need & Switching Interest)');
 
     if (missing.length > 0) {
       alert(`Please select an answer for all questions before submitting.\nUnanswered questions: ${missing.join(', ')}`);
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Button loading state
     const originalBtnHtml = submitBtn.innerHTML;
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span>Saving VYVIA response...</span>';
+    submitBtn.innerHTML = '<span>Saving research response...</span>';
 
     try {
       const response = await fetch('/api/submit', {

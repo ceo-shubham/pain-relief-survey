@@ -1,3 +1,6 @@
+const CLERK_PUBLISHABLE_KEY = 'pk_test_cnVsaW5nLWFsaWVuLTYxNy5jbGVyay5hY2NvdW50cy5kZXYk';
+let currentClerkUser = null;
+
 document.addEventListener('DOMContentLoaded', () => {
   const q1YesBtn = document.getElementById('q1-yes-btn');
   const q1NoBtn = document.getElementById('q1-no-btn');
@@ -46,6 +49,15 @@ document.addEventListener('DOMContentLoaded', () => {
   surveyForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    if (!currentClerkUser) {
+      alert('Kripya survey submit karne se pehle sign in karein.');
+      if (window.Clerk) window.Clerk.openSignIn();
+      return;
+    }
+
+    const email = currentClerkUser.primaryEmailAddress ? currentClerkUser.primaryEmailAddress.emailAddress : '';
+    const name = currentClerkUser.fullName || currentClerkUser.firstName || 'Verified User';
+
     // Prepare payload
     const formData = {
       q1_relief: q1ReliefInput.value || '',
@@ -54,9 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
       q3_market_gap: document.getElementById('q3_market_gap').value.trim(),
       q4_alternate: document.getElementById('q4_alternate').value.trim(),
       q5_other_pain: document.getElementById('q5_other_pain').value.trim(),
-      name: document.getElementById('name').value.trim(),
-      email: document.getElementById('email').value.trim(),
-      phone: document.getElementById('phone').value.trim()
+      name: name,
+      email: email,
+      phone: ''
     };
 
     // Button loading state
@@ -106,4 +118,93 @@ document.addEventListener('DOMContentLoaded', () => {
     surveySection.style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+
+  // Initialize Clerk Authentication
+  initClerkAuth();
 });
+
+async function initClerkAuth() {
+  const authLoading = document.getElementById('auth-loading');
+  const authSignedOut = document.getElementById('auth-signed-out');
+  const authSignedIn = document.getElementById('auth-signed-in');
+  const userEmailDisplay = document.getElementById('user-email-display');
+  const surveyForm = document.getElementById('survey-form');
+  const btnClerkLogin = document.getElementById('btn-clerk-login');
+  const btnClerkLogout = document.getElementById('btn-clerk-logout');
+
+  // Wait for Clerk SDK to load
+  let attempts = 0;
+  while (!window.Clerk && attempts < 50) {
+    await new Promise(r => setTimeout(r, 100));
+    attempts++;
+  }
+
+  if (!window.Clerk) {
+    console.warn('Clerk script did not load from CDN, trying fallback loader...');
+    const script = document.createElement('script');
+    script.setAttribute('data-clerk-publishable-key', CLERK_PUBLISHABLE_KEY);
+    script.async = true;
+    script.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js';
+    script.crossOrigin = 'anonymous';
+    document.head.appendChild(script);
+    await new Promise(r => { script.onload = r; script.onerror = r; });
+  }
+
+  if (!window.Clerk) {
+    console.error('Clerk SDK unavailable.');
+    if (authLoading) authLoading.innerHTML = '<p style="color: #e11d48; font-size: 0.9rem;">Authentication service could not be loaded. Please refresh.</p>';
+    return;
+  }
+
+  try {
+    if (!window.Clerk.loaded) {
+      await window.Clerk.load({
+        publishableKey: CLERK_PUBLISHABLE_KEY
+      });
+    }
+
+    function renderAuthState() {
+      if (window.Clerk && window.Clerk.user) {
+        currentClerkUser = window.Clerk.user;
+        const email = currentClerkUser.primaryEmailAddress ? currentClerkUser.primaryEmailAddress.emailAddress : 'Authenticated User';
+        if (userEmailDisplay) userEmailDisplay.textContent = email;
+
+        if (authLoading) authLoading.style.display = 'none';
+        if (authSignedOut) authSignedOut.style.display = 'none';
+        if (authSignedIn) authSignedIn.style.display = 'flex';
+        if (surveyForm) surveyForm.style.display = 'block';
+      } else {
+        currentClerkUser = null;
+        if (authLoading) authLoading.style.display = 'none';
+        if (authSignedIn) authSignedIn.style.display = 'none';
+        if (authSignedOut) authSignedOut.style.display = 'block';
+        if (surveyForm) surveyForm.style.display = 'none';
+      }
+      if (window.feather) feather.replace();
+    }
+
+    renderAuthState();
+
+    window.Clerk.addListener(({ user }) => {
+      currentClerkUser = user;
+      renderAuthState();
+    });
+
+    if (btnClerkLogin) {
+      btnClerkLogin.addEventListener('click', () => {
+        window.Clerk.openSignIn();
+      });
+    }
+
+    if (btnClerkLogout) {
+      btnClerkLogout.addEventListener('click', async () => {
+        await window.Clerk.signOut();
+        renderAuthState();
+      });
+    }
+  } catch (err) {
+    console.error('Error during Clerk load:', err);
+    if (authLoading) authLoading.style.display = 'none';
+    if (authSignedOut) authSignedOut.style.display = 'block';
+  }
+}

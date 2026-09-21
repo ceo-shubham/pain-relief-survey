@@ -226,16 +226,13 @@ app.get('/api/export', requireAdmin, (req, res) => {
   const submissions = readSubmissions();
 
   const headers = [
-    'Person Name',
+    'Email',
     'Ans1 (Heating Pad Relief & Level)',
     'Ans2 (Flaws & Drawbacks)',
     'Ans3 (Market Gap / Missing Product)',
     'Ans4 (Alternate Solution & Why)',
     'Ans5 (Other Pain Areas & Efficacy)',
-    'Email',
-    'Phone/WhatsApp',
-    'Date & Time',
-    'Submission ID'
+    'Date & Time'
   ];
 
   const escapeCSV = (val) => {
@@ -254,16 +251,13 @@ app.get('/api/export', requireAdmin, (req, res) => {
   };
 
   const rows = submissions.map(sub => [
-    escapeCSV(sub.name || 'Anonymous'),
+    escapeCSV(sub.email || '-'),
     escapeCSV(formatAns1(sub)),
     escapeCSV(sub.q2_flaws || '-'),
     escapeCSV(sub.q3_market_gap || '-'),
     escapeCSV(sub.q4_alternate || '-'),
     escapeCSV(sub.q5_other_pain || '-'),
-    escapeCSV(sub.email || '-'),
-    escapeCSV(sub.phone || '-'),
-    escapeCSV(new Date(sub.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })),
-    escapeCSV(sub.id)
+    escapeCSV(new Date(sub.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }))
   ].join(','));
 
   const csvContent = [headers.join(','), ...rows].join('\r\n');

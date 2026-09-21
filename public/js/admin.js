@@ -227,13 +227,16 @@ function renderAllSubmissionsTab(list) {
       q1Display = '<span style="color: #dc2626; font-weight: 700;">👎 No, Relief nahi milta</span>';
     }
 
+    const displayName = sub.email || sub.name || 'Anonymous User';
+    const initial = (displayName[0] || 'U').toUpperCase();
+
     return `
       <div class="survey-card" style="margin-bottom: 14px;">
         <div class="qn-card-top">
           <div class="user-meta">
-            <div class="user-avatar">${(sub.name || 'A')[0].toUpperCase()}</div>
+            <div class="user-avatar">${initial}</div>
             <div>
-              <div class="user-name">${escapeHTML(sub.name || 'Anonymous')}</div>
+              <div class="user-name">${escapeHTML(displayName)}</div>
               <div class="sub-date">${formattedDate}</div>
             </div>
           </div>
@@ -277,10 +280,9 @@ function renderAllSubmissionsTab(list) {
           </div>
         </div>
 
-        ${(sub.email || sub.phone) ? `
+        ${(sub.email && sub.email !== displayName) ? `
           <div class="qn-contact-strip" style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #f1f5f9;">
-            ${sub.email ? `<span class="contact-pill"><i data-feather="mail" style="width: 11px; height: 11px;"></i> ${escapeHTML(sub.email)}</span>` : ''}
-            ${sub.phone ? `<span class="contact-pill"><i data-feather="phone" style="width: 11px; height: 11px;"></i> ${escapeHTML(sub.phone)}</span>` : ''}
+            <span class="contact-pill"><i data-feather="mail" style="width: 11px; height: 11px;"></i> ${escapeHTML(sub.email)}</span>
           </div>
         ` : ''}
       </div>
@@ -300,6 +302,9 @@ function renderQ1Tab(list) {
 
   container.innerHTML = q1List.map(sub => {
     const formattedDate = new Date(sub.createdAt).toLocaleDateString('en-IN');
+    const displayName = sub.email || sub.name || 'Anonymous User';
+    const initial = (displayName[0] || 'U').toUpperCase();
+
     let ratingBadge = '';
     if (sub.q1_relief === 'yes') {
       ratingBadge = `
@@ -324,20 +329,14 @@ function renderQ1Tab(list) {
       <div class="qn-card">
         <div class="qn-card-top">
           <div class="user-meta">
-            <div class="user-avatar">${(sub.name || 'A')[0].toUpperCase()}</div>
-            <div class="user-name">${escapeHTML(sub.name || 'Anonymous')}</div>
+            <div class="user-avatar">${initial}</div>
+            <div class="user-name">${escapeHTML(displayName)}</div>
           </div>
           <span class="sub-date">${formattedDate}</span>
         </div>
         <div style="margin-top: 6px;">
           ${ratingBadge}
         </div>
-        ${(sub.email || sub.phone) ? `
-          <div class="qn-contact-strip">
-            ${sub.email ? `<span class="contact-pill">${escapeHTML(sub.email)}</span>` : ''}
-            ${sub.phone ? `<span class="contact-pill">${escapeHTML(sub.phone)}</span>` : ''}
-          </div>
-        ` : ''}
       </div>
     `;
   }).join('');
@@ -397,24 +396,21 @@ function renderQ5Tab(list) {
 
 function renderTextResponseCard(sub, textContent, accentColor) {
   const formattedDate = new Date(sub.createdAt).toLocaleDateString('en-IN');
+  const displayName = sub.email || sub.name || 'Anonymous User';
+  const initial = (displayName[0] || 'U').toUpperCase();
+
   return `
     <div class="qn-card">
       <div class="qn-card-top">
         <div class="user-meta">
-          <div class="user-avatar">${(sub.name || 'A')[0].toUpperCase()}</div>
-          <div class="user-name">${escapeHTML(sub.name || 'Anonymous')}</div>
+          <div class="user-avatar">${initial}</div>
+          <div class="user-name">${escapeHTML(displayName)}</div>
         </div>
         <span class="sub-date">${formattedDate}</span>
       </div>
       <div class="qn-answer-text" style="border-left-color: ${accentColor};">
         ${escapeHTML(textContent)}
       </div>
-      ${(sub.email || sub.phone) ? `
-        <div class="qn-contact-strip">
-          ${sub.email ? `<span class="contact-pill"><i data-feather="mail" style="width: 11px; height: 11px;"></i> ${escapeHTML(sub.email)}</span>` : ''}
-          ${sub.phone ? `<span class="contact-pill"><i data-feather="phone" style="width: 11px; height: 11px;"></i> ${escapeHTML(sub.phone)}</span>` : ''}
-        </div>
-      ` : ''}
     </div>
   `;
 }

@@ -1,5 +1,25 @@
-const CLERK_PUBLISHABLE_KEY = 'pk_test_cnVsaW5nLWFsaWVuLTYxNy5jbGVyay5hY2NvdW50cy5kZXYk';
-let currentClerkUser = null;
+const GOOGLE_CLIENT_ID = '1074575137334-jkheiebc0vh7225gi06jc3cav97b3ces.apps.googleusercontent.com';
+const SESSION_STORAGE_KEY = 'survey_google_user';
+
+let currentGoogleUser = null;
+
+// JWT Decoder for Google ID Token
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Error decoding JWT:', e);
+    return null;
+  }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const q1YesBtn = document.getElementById('q1-yes-btn');
@@ -49,14 +69,13 @@ document.addEventListener('DOMContentLoaded', () => {
   surveyForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    if (!currentClerkUser) {
-      alert('Kripya survey submit karne se pehle sign in karein.');
-      if (window.Clerk) window.Clerk.openSignIn();
+    if (!currentGoogleUser) {
+      alert('Kripya survey submit karne se pehle Google se sign in karein.');
       return;
     }
 
-    const email = currentClerkUser.primaryEmailAddress ? currentClerkUser.primaryEmailAddress.emailAddress : '';
-    const name = currentClerkUser.fullName || currentClerkUser.firstName || 'Verified User';
+    const email = currentGoogleUser.email || '';
+    const name = currentGoogleUser.name || 'Verified User';
 
     // Prepare payload
     const formData = {
@@ -119,92 +138,128 @@ document.addEventListener('DOMContentLoaded', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  // Initialize Clerk Authentication
-  initClerkAuth();
+  // Initialize Google Auth
+  initGoogleAuth();
 });
 
-async function initClerkAuth() {
+// Google Identity Services Setup
+function initGoogleAuth() {
   const authLoading = document.getElementById('auth-loading');
   const authSignedOut = document.getElementById('auth-signed-out');
   const authSignedIn = document.getElementById('auth-signed-in');
   const userEmailDisplay = document.getElementById('user-email-display');
+  const userNameDisplay = document.getElementById('user-name-display');
+  const userAvatarImg = document.getElementById('user-avatar-img');
+  const userAvatarDefault = document.getElementById('user-avatar-default');
   const surveyForm = document.getElementById('survey-form');
-  const btnClerkLogin = document.getElementById('btn-clerk-login');
-  const btnClerkLogout = document.getElementById('btn-clerk-logout');
+  const btnGoogleLogout = document.getElementById('btn-google-logout');
 
-  // Wait for Clerk SDK to load
-  let attempts = 0;
-  while (!window.Clerk && attempts < 50) {
-    await new Promise(r => setTimeout(r, 100));
-    attempts++;
-  }
-
-  if (!window.Clerk) {
-    console.warn('Clerk script did not load from CDN, trying fallback loader...');
-    const script = document.createElement('script');
-    script.setAttribute('data-clerk-publishable-key', CLERK_PUBLISHABLE_KEY);
-    script.async = true;
-    script.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js';
-    script.crossOrigin = 'anonymous';
-    document.head.appendChild(script);
-    await new Promise(r => { script.onload = r; script.onerror = r; });
-  }
-
-  if (!window.Clerk) {
-    console.error('Clerk SDK unavailable.');
-    if (authLoading) authLoading.innerHTML = '<p style="color: #e11d48; font-size: 0.9rem;">Authentication service could not be loaded. Please refresh.</p>';
-    return;
-  }
-
+  // Check saved session
   try {
-    if (!window.Clerk.loaded) {
-      await window.Clerk.load({
-        publishableKey: CLERK_PUBLISHABLE_KEY
-      });
+    const saved = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    if (saved) {
+      currentGoogleUser = JSON.parse(saved);
     }
+  } catch (e) {
+    console.error('Error reading session:', e);
+  }
 
-    function renderAuthState() {
-      if (window.Clerk && window.Clerk.user) {
-        currentClerkUser = window.Clerk.user;
-        const email = currentClerkUser.primaryEmailAddress ? currentClerkUser.primaryEmailAddress.emailAddress : 'Authenticated User';
-        if (userEmailDisplay) userEmailDisplay.textContent = email;
-
-        if (authLoading) authLoading.style.display = 'none';
-        if (authSignedOut) authSignedOut.style.display = 'none';
-        if (authSignedIn) authSignedIn.style.display = 'flex';
-        if (surveyForm) surveyForm.style.display = 'block';
+  function renderAuthState() {
+    if (currentGoogleUser && currentGoogleUser.email) {
+      if (userEmailDisplay) userEmailDisplay.textContent = currentGoogleUser.email;
+      if (userNameDisplay) userNameDisplay.textContent = currentGoogleUser.name || 'Signed In';
+      
+      if (currentGoogleUser.picture && userAvatarImg) {
+        userAvatarImg.src = currentGoogleUser.picture;
+        userAvatarImg.style.display = 'block';
+        if (userAvatarDefault) userAvatarDefault.style.display = 'none';
       } else {
-        currentClerkUser = null;
-        if (authLoading) authLoading.style.display = 'none';
-        if (authSignedIn) authSignedIn.style.display = 'none';
-        if (authSignedOut) authSignedOut.style.display = 'block';
-        if (surveyForm) surveyForm.style.display = 'none';
+        if (userAvatarImg) userAvatarImg.style.display = 'none';
+        if (userAvatarDefault) userAvatarDefault.style.display = 'flex';
       }
-      if (window.feather) feather.replace();
+
+      if (authLoading) authLoading.style.display = 'none';
+      if (authSignedOut) authSignedOut.style.display = 'none';
+      if (authSignedIn) authSignedIn.style.display = 'flex';
+      if (surveyForm) surveyForm.style.display = 'block';
+    } else {
+      currentGoogleUser = null;
+      if (authLoading) authLoading.style.display = 'none';
+      if (authSignedIn) authSignedIn.style.display = 'none';
+      if (authSignedOut) authSignedOut.style.display = 'block';
+      if (surveyForm) surveyForm.style.display = 'none';
     }
+    if (window.feather) feather.replace();
+  }
 
-    renderAuthState();
-
-    window.Clerk.addListener(({ user }) => {
-      currentClerkUser = user;
+  // Handle Google OAuth Credential
+  window.handleGoogleCredentialResponse = function(response) {
+    const payload = parseJwt(response.credential);
+    if (payload && payload.email) {
+      currentGoogleUser = {
+        email: payload.email,
+        name: payload.name || payload.given_name || 'Verified User',
+        picture: payload.picture || ''
+      };
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(currentGoogleUser));
       renderAuthState();
+    }
+  };
+
+  // Render initial state
+  renderAuthState();
+
+  // Setup GIS when script is loaded
+  function setupGis() {
+    if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+      setTimeout(setupGis, 100);
+      return;
+    }
+
+    try {
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: window.handleGoogleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true
+      });
+
+      const btnWrapper = document.getElementById('google-btn-wrapper');
+      if (btnWrapper) {
+        window.google.accounts.id.renderButton(btnWrapper, {
+          theme: 'outline',
+          size: 'large',
+          type: 'standard',
+          shape: 'pill',
+          text: 'continue_with',
+          logo_alignment: 'left',
+          width: 280
+        });
+      }
+
+      // One Tap Prompt if not logged in
+      if (!currentGoogleUser) {
+        window.google.accounts.id.prompt();
+      }
+    } catch (err) {
+      console.error('Error initializing Google Identity Services:', err);
+    }
+  }
+
+  setupGis();
+
+  // Handle Logout / Switch
+  if (btnGoogleLogout) {
+    btnGoogleLogout.addEventListener('click', () => {
+      sessionStorage.removeItem(SESSION_STORAGE_KEY);
+      currentGoogleUser = null;
+      if (window.google && window.google.accounts && window.google.accounts.id) {
+        window.google.accounts.id.disableAutoSelect();
+      }
+      renderAuthState();
+      if (window.google && window.google.accounts && window.google.accounts.id) {
+        window.google.accounts.id.prompt();
+      }
     });
-
-    if (btnClerkLogin) {
-      btnClerkLogin.addEventListener('click', () => {
-        window.Clerk.openSignIn();
-      });
-    }
-
-    if (btnClerkLogout) {
-      btnClerkLogout.addEventListener('click', async () => {
-        await window.Clerk.signOut();
-        renderAuthState();
-      });
-    }
-  } catch (err) {
-    console.error('Error during Clerk load:', err);
-    if (authLoading) authLoading.style.display = 'none';
-    if (authSignedOut) authSignedOut.style.display = 'block';
   }
 }

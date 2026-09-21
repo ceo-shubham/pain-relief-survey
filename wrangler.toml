@@ -5,7 +5,7 @@ account_id = "6a4deb8093c0933acae8333de46863b6"
 
 # Custom domain configuration
 routes = [
-  { pattern = "survey10.zyanix.xyz", custom_domain = true }
+  { pattern = "survey10.zyanix.space", custom_domain = true }
 ]
 
 # Static assets / site directory

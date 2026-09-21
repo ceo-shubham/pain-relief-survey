@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Pain Relief & Heating Pad Feedback Survey</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="shortcut icon" href="/logo.png" />
   <link rel="stylesheet" href="/css/styles.css" />
   <!-- Feather Icons for lightweight modern icons -->
   <script src="https://unpkg.com/feather-icons"></script>
@@ -12,6 +14,9 @@
   <div class="container">
     <!-- Header -->
     <header class="app-header">
+      <div class="brand-logo-wrap">
+        <img src="/logo.png" alt="ZENSTRO Logo" class="brand-logo" />
+      </div>
       <div class="badge-tag">
         <i data-feather="heart" style="width: 14px; height: 14px;"></i>
         <span>Quick Community Survey</span>
@@ -241,11 +246,22 @@
       </div>
     </div>
 
-    <!-- Minimal footer -->
-    <footer style="margin-top: 40px; text-align: center; font-size: 0.82rem; color: #94a3b8;">
-      <p>Confidential Community Research Survey</p>
+    <!-- Footer & Watermark -->
+    <footer class="app-footer">
+      <div class="watermark-card">
+        <div class="watermark-pill">
+          <i data-feather="shield" style="width: 14px; height: 14px;"></i>
+          <span>By <strong>Shubham Pathak (ZENSTRO)</strong></span>
+        </div>
+        <div class="watermark-divider">&bull;</div>
+        <div class="watermark-pill">
+          <i data-feather="award" style="width: 14px; height: 14px;"></i>
+          <span>Survey Program By <strong>Anshika</strong></span>
+        </div>
+      </div>
+      <p class="footer-note">Confidential Community Research Survey</p>
       <p style="margin-top: 6px;">
-        <a href="/admin" style="color: #6366f1; text-decoration: none; font-weight: 600;">Admin Dashboard &rarr;</a>
+        <a href="/admin" class="footer-admin-link">Admin Dashboard &rarr;</a>
       </p>
     </footer>
   </div>

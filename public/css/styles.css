@@ -772,6 +772,10 @@ h1, h2, h3, h4, .brand-font {
   color: #e11d48;
 }
 
+.watermark-pill.company-pill i {
+  color: #4f46e5;
+}
+
 .watermark-divider {
   color: #cbd5e1;
   font-size: 0.9rem;

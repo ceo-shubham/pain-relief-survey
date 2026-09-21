@@ -1,4 +1,4 @@
-const GOOGLE_CLIENT_ID = '1074575137334-jkheiebc0vh7225gi06jc3cav97b3ces.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '1074575137334-g2e52hi7sm806v9d2gt7g938jvh8lhpa.apps.googleusercontent.com';
 const SESSION_STORAGE_KEY = 'survey_google_user';
 
 let currentGoogleUser = null;

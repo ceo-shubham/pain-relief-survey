@@ -8,8 +8,21 @@ export default {
     // Helper: read submissions from Cloudflare KV
     async function getSubmissions() {
       try {
-        const raw = await env.SURVEY_DB.get('submissions_list');
-        return raw ? JSON.parse(raw) : [];
+        const raw = await env.SURVEY_DB.get('vyvia_submissions_list');
+        if (raw) {
+          return JSON.parse(raw);
+        }
+        // One-time automatic migration: separate VYVIA entries from legacy shared key
+        const legacyRaw = await env.SURVEY_DB.get('submissions_list');
+        if (legacyRaw) {
+          const legacyList = JSON.parse(legacyRaw);
+          const vyviaEntries = legacyList.filter(item => item && (item.q1_rashes !== undefined || item.q8_overall_experience !== undefined));
+          if (vyviaEntries.length > 0) {
+            await env.SURVEY_DB.put('vyvia_submissions_list', JSON.stringify(vyviaEntries));
+            return vyviaEntries;
+          }
+        }
+        return [];
       } catch (err) {
         console.error('KV Read Error:', err);
         return [];
@@ -18,7 +31,7 @@ export default {
 
     // Helper: save submissions to Cloudflare KV
     async function putSubmissions(list) {
-      await env.SURVEY_DB.put('submissions_list', JSON.stringify(list));
+      await env.SURVEY_DB.put('vyvia_submissions_list', JSON.stringify(list));
     }
 
     // JSON response helper with CORS

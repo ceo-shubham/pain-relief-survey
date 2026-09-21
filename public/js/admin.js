@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (err) {
       console.error('Login error:', err);
-      loginErrorMsg.textContent = 'Server connection error. Try again.';
+      loginErrorMsg.textContent = 'Server connection error. Please try again.';
       loginErrorMsg.style.display = 'block';
     }
   });
@@ -154,18 +154,21 @@ function updateKpis(stats) {
   const total = stats.total || 0;
   document.getElementById('stat-total-submissions').textContent = total;
 
-  // Q1 Zero Rash rate
-  const q1Zero = (stats.questions?.q1 && stats.questions.q1['Bilkul nahi (Zero irritation)']) || 0;
+  // Q1 Zero Rash rate (supports both English and legacy string)
+  const q1Counts = stats.questions?.q1 || {};
+  const q1Zero = (q1Counts['Not at all (Zero irritation)'] || q1Counts['Bilkul nahi (Zero irritation)']) || 0;
   const q1Rate = total > 0 ? Math.round((q1Zero / total) * 100) : 0;
   document.getElementById('stat-zero-rash-rate').textContent = `${q1Rate}%`;
 
   // Q7 Zero Leak rate
-  const q7Zero = (stats.questions?.q7 && stats.questions.q7['Zero leakage']) || 0;
+  const q7Counts = stats.questions?.q7 || {};
+  const q7Zero = q7Counts['Zero leakage'] || 0;
   const q7Rate = total > 0 ? Math.round((q7Zero / total) * 100) : 0;
   document.getElementById('stat-zero-leak-rate').textContent = `${q7Rate}%`;
 
   // Q8 Better Experience rate
-  const q8Better = (stats.questions?.q8 && stats.questions.q8['Bohot behtar (No rash + fresh feeling)']) || 0;
+  const q8Counts = stats.questions?.q8 || {};
+  const q8Better = (q8Counts['Much better (Zero rashes + fresh feeling)'] || q8Counts['Bohot behtar (No rash + fresh feeling)']) || 0;
   const q8Rate = total > 0 ? Math.round((q8Better / total) * 100) : 0;
   document.getElementById('stat-better-exp-rate').textContent = `${q8Rate}%`;
 
@@ -220,13 +223,13 @@ function renderAllViews(query = '') {
 function getBadgeClass(val) {
   if (!val) return 'tag-yellow';
   const v = val.toLowerCase();
-  if (v.includes('bilkul nahi') || v.includes('zero') || v.includes('dry') || v.includes('safe') || v.includes('100%') || v.includes('turant') || v.includes('bohot behtar')) {
+  if (v.includes('not at all') || v.includes('zero') || v.includes('dry') || v.includes('safe') || v.includes('100%') || v.includes('instant') || v.includes('much better') || v.includes('bilkul nahi') || v.includes('turant') || v.includes('bohot behtar')) {
     return 'tag-green';
   }
-  if (v.includes('kam') || v.includes('hadd tak') || v.includes('normal')) {
+  if (v.includes('minimal') || v.includes('well controlled') || v.includes('significantly') || v.includes('normal') || v.includes('kam') || v.includes('hadd tak')) {
     return 'tag-blue';
   }
-  if (v.includes('moderate') || v.includes('light flow') || v.includes('thoda') || v.includes('thodi') || v.includes('same')) {
+  if (v.includes('moderate') || v.includes('light flow') || v.includes('slight') || v.includes('about the same') || v.includes('same') || v.includes('thoda') || v.includes('thodi')) {
     return 'tag-yellow';
   }
   return 'tag-red';
@@ -236,7 +239,7 @@ function getBadgeClass(val) {
 function renderAllSubmissionsTab(list) {
   const container = document.getElementById('all-submissions-list');
   if (list.length === 0) {
-    container.innerHTML = '<div class="empty-box">Abhi tak koi submission record nahi hua hai.</div>';
+    container.innerHTML = '<div class="empty-box">No survey submissions recorded yet.</div>';
     return;
   }
 
@@ -271,7 +274,7 @@ function renderAllSubmissionsTab(list) {
             <span class="ans-val-pill ${getBadgeClass(sub.q1_rashes)}">${escapeHTML(sub.q1_rashes || 'N/A')}</span>
           </div>
           <div class="ans-row">
-            <span class="ans-label">Q2 (Stinging/Jalan):</span>
+            <span class="ans-label">Q2 (Stinging/Burning):</span>
             <span class="ans-val-pill ${getBadgeClass(sub.q2_stinging)}">${escapeHTML(sub.q2_stinging || 'N/A')}</span>
           </div>
           <div class="ans-row">
@@ -279,11 +282,11 @@ function renderAllSubmissionsTab(list) {
             <span class="ans-val-pill ${getBadgeClass(sub.q3_dampness)}">${escapeHTML(sub.q3_dampness || 'N/A')}</span>
           </div>
           <div class="ans-row">
-            <span class="ans-label">Q4 (Vulvar Skin):</span>
+            <span class="ans-label">Q4 (Vulvar Skin Health):</span>
             <span class="ans-val-pill ${getBadgeClass(sub.q4_skin_texture)}">${escapeHTML(sub.q4_skin_texture || 'N/A')}</span>
           </div>
           <div class="ans-row">
-            <span class="ans-label">Q5 (Odor Control):</span>
+            <span class="ans-label">Q5 (Odor Control - ZnO):</span>
             <span class="ans-val-pill ${getBadgeClass(sub.q5_odor_control)}">${escapeHTML(sub.q5_odor_control || 'N/A')}</span>
           </div>
           <div class="ans-row">
@@ -358,62 +361,136 @@ function renderQuestionTab(qnNum, list) {
   }).join('');
 }
 
-// Render Chart.js for all questions
+// Render Chart.js for all questions in English
 function renderAllCharts(stats) {
   const qConfigs = [
     {
       num: 1,
       key: 'q1',
-      labels: ['Bilkul nahi (Zero irritation)', 'Bohat kam', 'Moderate (Kabhi kabhi)', 'Severe (Kaafi zyada rashes)'],
+      labels: [
+        'Not at all (Zero irritation)',
+        'Very minimal',
+        'Moderate (Occasional)',
+        'Severe (Significant rashes)'
+      ],
+      altLabels: [
+        'Bilkul nahi (Zero irritation)',
+        'Bohat kam',
+        'Moderate (Kabhi kabhi)',
+        'Severe (Kaafi zyada rashes)'
+      ],
       shortLabels: ['Zero Irritation', 'Minimal', 'Moderate', 'Severe Rashes'],
       colors: ['#10b981', '#0ea5e9', '#f59e0b', '#ef4444']
     },
     {
       num: 2,
       key: 'q2',
-      labels: ['Bilkul nahi', 'Sirf light flow ke time', 'Pehle din se continuous'],
+      labels: [
+        'Not at all',
+        'Only during light flow',
+        'Continuous from day one'
+      ],
+      altLabels: [
+        'Bilkul nahi',
+        'Sirf light flow ke time',
+        'Pehle din se continuous'
+      ],
       shortLabels: ['No Stinging', 'Light Flow Only', 'Continuous'],
       colors: ['#10b981', '#f59e0b', '#ef4444']
     },
     {
       num: 3,
       key: 'q3',
-      labels: ['Dry and fresh laga', 'Thoda sa gila-pan tha', 'Bohot zyada pasina/dampness tha'],
+      labels: [
+        'Felt dry and fresh',
+        'Slight dampness / moisture',
+        'Excessive sweat / high dampness'
+      ],
+      altLabels: [
+        'Dry and fresh laga',
+        'Thoda sa gila-pan tha',
+        'Bohot zyada pasina/dampness tha'
+      ],
       shortLabels: ['Dry & Fresh', 'Mild Dampness', 'Heavy Sweat'],
       colors: ['#10b981', '#f59e0b', '#ef4444']
     },
     {
       num: 4,
       key: 'q4',
-      labels: ['Skin normal aur safe rahi', 'Thodi sticky lagi', 'Skin chhil gayi / redness aayi'],
-      shortLabels: ['Safe & Normal', 'Slightly Sticky', 'Redness / Chhil gayi'],
+      labels: [
+        'Skin remained normal and safe',
+        'Felt slightly sticky',
+        'Skin chafed / redness occurred'
+      ],
+      altLabels: [
+        'Skin normal aur safe rahi',
+        'Thodi sticky lagi',
+        'Skin chhil gayi / redness aayi'
+      ],
+      shortLabels: ['Safe & Normal', 'Slightly Sticky', 'Chafed / Redness'],
       colors: ['#10b981', '#f59e0b', '#ef4444']
     },
     {
       num: 5,
       key: 'q5',
-      labels: ['100% koi smell nahi aayi', 'Kaafi hadd tak control thi', 'Regular pads jaisi hi smell thi'],
+      labels: [
+        '100% odor-free (Zero smell)',
+        'Significantly controlled',
+        'Same odor as regular pads'
+      ],
+      altLabels: [
+        '100% koi smell nahi aayi',
+        'Kaafi hadd tak control thi',
+        'Regular pads jaisi hi smell thi'
+      ],
       shortLabels: ['100% Odorless', 'Well Controlled', 'Like Regular Pads'],
       colors: ['#10b981', '#0ea5e9', '#f59e0b']
     },
     {
       num: 6,
       key: 'q6',
-      labels: ['Turant absorb ho gaya (Surface dry raha)', 'Normal time liya', 'Upar hi thehra raha (Slow absorption)'],
-      shortLabels: ['Instant Absorption', 'Normal Time', 'Slow / Pooled'],
+      labels: [
+        'Instant absorption (Surface stayed dry)',
+        'Normal absorption speed',
+        'Stayed on surface (Slow absorption)'
+      ],
+      altLabels: [
+        'Turant absorb ho gaya (Surface dry raha)',
+        'Normal time liya',
+        'Upar hi thehra raha (Slow absorption)'
+      ],
+      shortLabels: ['Instant Absorption', 'Normal Speed', 'Slow / Pooled'],
       colors: ['#10b981', '#0ea5e9', '#ef4444']
     },
     {
       num: 7,
       key: 'q7',
-      labels: ['Zero leakage', 'Heavy flow ke din thoda leak hua', 'Kaafi leakage hui'],
+      labels: [
+        'Zero leakage',
+        'Slight leak on heavy flow days',
+        'Frequent / significant leakage'
+      ],
+      altLabels: [
+        'Zero leakage',
+        'Heavy flow ke din thoda leak hua',
+        'Kaafi leakage hui'
+      ],
       shortLabels: ['Zero Leakage', 'Slight on Heavy Days', 'Frequent Leakage'],
       colors: ['#10b981', '#f59e0b', '#ef4444']
     },
     {
       num: 8,
       key: 'q8',
-      labels: ['Bohot behtar (No rash + fresh feeling)', 'Lagbhag same', 'Uncomfortable laga'],
+      labels: [
+        'Much better (Zero rashes + fresh feeling)',
+        'About the same',
+        'Uncomfortable'
+      ],
+      altLabels: [
+        'Bohot behtar (No rash + fresh feeling)',
+        'Lagbhag same',
+        'Uncomfortable laga'
+      ],
       shortLabels: ['Much Better (Fresh)', 'About The Same', 'Uncomfortable'],
       colors: ['#10b981', '#f59e0b', '#ef4444']
     }
@@ -424,7 +501,10 @@ function renderAllCharts(stats) {
     if (!canvas) return;
 
     const counts = stats.questions?.[cfg.key] || {};
-    const dataValues = cfg.labels.map(l => counts[l] || 0);
+    const dataValues = cfg.labels.map((l, idx) => {
+      const alt = cfg.altLabels ? cfg.altLabels[idx] : null;
+      return (counts[l] || 0) + (alt && counts[alt] ? counts[alt] : 0);
+    });
 
     if (charts[cfg.num]) {
       charts[cfg.num].destroy();
@@ -477,7 +557,7 @@ async function deleteSubmission(id) {
     if (data.success) {
       fetchData();
     } else {
-      alert(data.message || 'Failed to delete');
+      alert(data.message || 'Failed to delete submission');
     }
   } catch (err) {
     console.error('Error deleting submission:', err);

@@ -233,9 +233,9 @@ export default {
       const headers = [
         'Respondent Email',
         'Q1 (Rashes/Itching)',
-        'Q2 (Stinging/Jalan)',
+        'Q2 (Burning/Stinging)',
         'Q3 (Dampness/Sweat)',
-        'Q4 (Vulvar Skin Condition)',
+        'Q4 (Vulvar Skin Health)',
         'Q5 (Odor Control - ZnO)',
         'Q6 (Absorption Speed)',
         'Q7 (Side Leakage)',

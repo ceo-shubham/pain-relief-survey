@@ -21,7 +21,7 @@
       </div>
       <h2 style="font-size: 1.4rem; font-weight: 700; color: #0f172a; margin-bottom: 6px;">VYVIA Admin Access</h2>
       <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 20px;">
-        Survey data and insights dekhne ke liye admin password enter karein.
+        Please enter the admin password to access survey insights and respondent analytics.
       </p>
 
       <form id="admin-login-form">
@@ -65,7 +65,7 @@
           <span style="font-size: 0.78rem; color: #64748b;" id="last-updated-text">Live Sync</span>
         </div>
         <h1 style="margin-top: 4px;">VYVIA Survey Responses &amp; Insights</h1>
-        <p>Q1–Q8 choice breakdowns, respondent analytics, live charts &amp; CSV export</p>
+        <p>Question-wise submissions, respondent analytics, live charts &amp; CSV export</p>
       </div>
       <div class="admin-actions">
         <a href="/" target="_blank" class="btn-refresh" style="text-decoration: none;">
@@ -157,7 +157,7 @@
 
       <button class="tab-btn" data-tab="q2">
         <i data-feather="zap" style="width: 14px; height: 14px;"></i>
-        <span>Q2: Stinging / Jalan</span>
+        <span>Q2: Stinging / Burning</span>
         <span class="tab-count" id="count-q2">0</span>
       </button>
 
@@ -169,7 +169,7 @@
 
       <button class="tab-btn" data-tab="q4">
         <i data-feather="smile" style="width: 14px; height: 14px;"></i>
-        <span>Q4: Vulvar Skin</span>
+        <span>Q4: Vulvar Skin Health</span>
         <span class="tab-count" id="count-q4">0</span>
       </button>
 
@@ -212,10 +212,10 @@
       <div id="view-q1" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q1: Pad use karne ke baad rashes ya itching mehsoos hui?
+            Q1: Did you experience any rashes or itching after using the pad?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            Distribution of Skin Comfort &amp; Irritation responses
+            Distribution of skin comfort and irritation responses
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q1"></canvas>
@@ -228,10 +228,10 @@
       <div id="view-q2" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q2: Skin par jalan ya stinging sensation (chubhan) hui?
+            Q2: Did you experience any burning or stinging sensation on your skin?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            Burning or stinging sensation frequency
+            Frequency of burning or stinging sensation
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q2"></canvas>
@@ -244,10 +244,10 @@
       <div id="view-q3" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q3: Pad pehanne ke baad gila-pan (sweat ya dampness) mehsoos hua?
+            Q3: Did you feel wetness, dampness, or sweat after wearing the pad?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            Breathability and sweat/dampness sensation
+            Breathability and moisture perception
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q3"></canvas>
@@ -260,10 +260,10 @@
       <div id="view-q4" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q4: Vulvar skin soft aur normal lagi ya sticky/macerated (skin chhilna)?
+            Q4: Did your vulvar skin feel soft and normal, or sticky / macerated (skin peeling/redness)?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            Vulvar skin texture and safety assessment
+            Vulvar skin texture, safety, and softness
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q4"></canvas>
@@ -276,10 +276,10 @@
       <div id="view-q5" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q5: Blood breakdown ya foul odor (badboo) kitni control hui?
+            Q5: How effectively was foul odor or blood breakdown controlled?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            ZnO / Pathogen odor suppression efficacy
+            ZnO antibacterial pathogen and odor control
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q5"></canvas>
@@ -292,10 +292,10 @@
       <div id="view-q6" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q6: Clots aur heavy blood pass hone ki speed kaisi thi?
+            Q6: How was the absorption speed for clots and heavy blood flow?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            Absorption speed &amp; surface dryness
+            Intake speed and surface dryness retention
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q6"></canvas>
@@ -308,10 +308,10 @@
       <div id="view-q7" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q7: Side leakage ka issue aaya?
+            Q7: Did you encounter any side leakage issues?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
-            Side leakage prevention efficacy
+            Side barrier containment and leakage performance
           </p>
           <div style="max-width: 540px; margin: 0 auto; height: 230px;">
             <canvas id="chart-q7"></canvas>
@@ -324,7 +324,7 @@
       <div id="view-q8" class="tab-view" style="display: none;">
         <div class="survey-card" style="margin-bottom: 16px;">
           <h3 style="font-size: 1.05rem; color: #0f172a; margin-bottom: 4px;">
-            Q8: Regular sanitary pad ke mukable VYVIA ka overall experience kaisa tha?
+            Q8: Compared to conventional sanitary pads, how was your overall experience with VYVIA?
           </h3>
           <p style="color: #64748b; font-size: 0.82rem; margin-bottom: 16px;">
             Overall comparative satisfaction rating

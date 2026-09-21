@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
 
     if (!currentGoogleUser) {
-      alert('Kripya survey submit karne se pehle Google se sign in karein.');
+      alert('Please sign in with your Google account before submitting the survey.');
       return;
     }
 
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if any question is missed
     const missing = [];
     if (!q1) missing.push('Q1 (Rashes/Itching)');
-    if (!q2) missing.push('Q2 (Stinging/Jalan)');
+    if (!q2) missing.push('Q2 (Stinging/Burning)');
     if (!q3) missing.push('Q3 (Dampness/Sweat)');
     if (!q4) missing.push('Q4 (Vulvar Skin Condition)');
     if (!q5) missing.push('Q5 (Odor Control)');
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!q8) missing.push('Q8 (Overall Comparison)');
 
     if (missing.length > 0) {
-      alert(`Kripya sabhi sawalon ke options select karein.\nBaqi sawal: ${missing.join(', ')}`);
+      alert(`Please select an answer for all questions before submitting.\nUnanswered questions: ${missing.join(', ')}`);
       return;
     }
 
